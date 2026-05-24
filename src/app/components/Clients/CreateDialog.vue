@@ -14,6 +14,12 @@
           v-model="expiresAt"
           :label="$t('client.expireDate')"
         />
+        <FormTextField
+          id="trafficLimitGb"
+          v-model="trafficLimitGb"
+          :label="$t('client.trafficLimit')"
+          :description="$t('client.trafficLimitDesc')"
+        />
       </div>
     </template>
     <template #actions>
@@ -32,6 +38,7 @@
 <script lang="ts" setup>
 const name = ref<string>('');
 const expiresAt = ref<string | null>(null);
+const trafficLimitGb = ref<string>('');
 const clientsStore = useClientsStore();
 
 const { t } = useI18n();
@@ -39,7 +46,17 @@ const { t } = useI18n();
 defineProps<{ triggerClass?: string }>();
 
 function createClient() {
-  return _createClient({ name: name.value, expiresAt: expiresAt.value });
+  const limitGb = trafficLimitGb.value.trim();
+  const trafficLimitBytes =
+    limitGb !== '' && !Number.isNaN(Number(limitGb)) && Number(limitGb) > 0
+      ? gbToBytes(Number(limitGb))
+      : null;
+
+  return _createClient({
+    name: name.value,
+    expiresAt: expiresAt.value,
+    trafficLimitBytes,
+  });
 }
 
 const _createClient = useSubmit(

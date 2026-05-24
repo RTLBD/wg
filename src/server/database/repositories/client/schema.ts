@@ -48,6 +48,9 @@ export const client = sqliteTable('clients_table', {
   i5: text(),
   dns: text({ mode: 'json' }).$type<string[]>(),
   serverEndpoint: text('server_endpoint'),
+  trafficLimitBytes: int('traffic_limit_bytes'),
+  trafficUsedBytes: int('traffic_used_bytes').default(0).notNull(),
+  trafficWgSnapshotBytes: int('traffic_wg_snapshot_bytes').default(0).notNull(),
   enabled: int({ mode: 'boolean' }).notNull(),
   createdAt: text('created_at')
     .notNull()

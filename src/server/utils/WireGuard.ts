@@ -1,6 +1,10 @@
 import fs from 'node:fs/promises';
 import { createDebug } from 'obug';
 import type { InterfaceType } from '#db/repositories/interface/types';
+import {
+  computeTrafficUsageUpdate,
+  isTrafficLimitExceeded,
+} from './trafficLimit';
 
 const WG_DEBUG = createDebug('WireGuard');
 
@@ -293,6 +297,12 @@ class WireGuard {
 
   async cronJob() {
     const clients = await Database.clients.getAll();
+    const wgInterface = await Database.interfaces.get();
+    const dump = await wg.dump(wgInterface.name);
+    const dumpByPublicKey = new Map(
+      dump.map((entry) => [entry.publicKey, entry])
+    );
+
     let needsSave = false;
     // Expires Feature
     for (const client of clients) {
@@ -302,6 +312,37 @@ class WireGuard {
         new Date() > new Date(client.expiresAt)
       ) {
         WG_DEBUG(`Client ${client.id} expired.`);
+        await Database.clients.toggle(client.id, false);
+        needsSave = true;
+      }
+    }
+    // Traffic limit accounting + enforcement
+    for (const client of clients) {
+      if (client.enabled !== true) continue;
+
+      const peer = dumpByPublicKey.get(client.publicKey);
+      if (!peer) continue;
+
+      const currentWgTotal = (peer.transferRx ?? 0) + (peer.transferTx ?? 0);
+      const { usedBytes, snapshotBytes } = computeTrafficUsageUpdate(
+        currentWgTotal,
+        client.trafficWgSnapshotBytes ?? 0,
+        client.trafficUsedBytes ?? 0
+      );
+
+      if (
+        usedBytes !== client.trafficUsedBytes ||
+        snapshotBytes !== client.trafficWgSnapshotBytes
+      ) {
+        await Database.clients.updateTrafficStats(
+          client.id,
+          usedBytes,
+          snapshotBytes
+        );
+      }
+
+      if (isTrafficLimitExceeded(usedBytes, client.trafficLimitBytes)) {
+        WG_DEBUG(`Client ${client.id} reached traffic limit.`);
         await Database.clients.toggle(client.id, false);
         needsSave = true;
       }

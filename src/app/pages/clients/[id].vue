@@ -28,6 +28,17 @@
               :description="$t('client.expireDateDesc')"
               :label="$t('client.expireDate')"
             />
+            <FormTextField
+              id="trafficLimitGb"
+              v-model="trafficLimitGb"
+              :description="$t('client.trafficLimitDesc')"
+              :label="$t('client.trafficLimit')"
+            />
+            <FormInfoField
+              id="trafficUsed"
+              :data="trafficUsedLabel"
+              :label="$t('client.trafficUsed')"
+            />
           </FormGroup>
           <FormGroup>
             <FormHeading>{{ $t('client.address') }}</FormHeading>
@@ -181,6 +192,12 @@
               :label="$t('form.revert')"
               @click="revert"
             />
+            <FormSecondaryActionField
+              :label="$t('client.resetTraffic')"
+              class="col-span-2"
+              type="button"
+              @click="resetTraffic"
+            />
             <ClientsDeleteDialog
               trigger-class="col-span-2"
               :client-name="data.name"
@@ -214,6 +231,9 @@
 </template>
 
 <script lang="ts" setup>
+import { bytes } from '~/utils/math';
+import { bytesToGb, gbToBytes } from '~/utils/trafficLimit';
+
 const globalStore = useGlobalStore();
 
 const route = useRoute();
@@ -223,6 +243,27 @@ const { data: _data, refresh } = await useFetch(`/api/client/${id}`, {
   method: 'get',
 });
 const data = toRef(_data.value);
+
+const trafficLimitGb = ref(
+  bytesToGb(data.value?.trafficLimitBytes ?? null)?.toString() ?? ''
+);
+
+watch(
+  () => data.value?.trafficLimitBytes,
+  (limitBytes) => {
+    trafficLimitGb.value =
+      bytesToGb(limitBytes ?? null)?.toString() ?? '';
+  }
+);
+
+const trafficUsedLabel = computed(() => {
+  const used = data.value?.trafficUsedBytes ?? 0;
+  const limit = data.value?.trafficLimitBytes;
+  if (limit != null && limit > 0) {
+    return `${bytes(used)} / ${bytes(limit)}`;
+  }
+  return bytes(used);
+});
 
 const _submit = useSubmit(
   `/api/client/${id}`,
@@ -241,7 +282,20 @@ const _submit = useSubmit(
 );
 
 function submit() {
-  return _submit(data.value);
+  if (!data.value) {
+    return;
+  }
+
+  const limitGb = trafficLimitGb.value.trim();
+  const payload = {
+    ...data.value,
+    trafficLimitBytes:
+      limitGb !== '' && !Number.isNaN(Number(limitGb)) && Number(limitGb) > 0
+        ? gbToBytes(Number(limitGb))
+        : null,
+  };
+
+  return _submit(payload);
 }
 
 async function revert() {
@@ -263,5 +317,23 @@ const _deleteClient = useSubmit(
 
 function deleteClient() {
   return _deleteClient(undefined);
+}
+
+const _resetTraffic = useSubmit(
+  `/api/client/${id}/reset-traffic`,
+  {
+    method: 'post',
+  },
+  {
+    revert: async () => {
+      await refresh();
+      data.value = toRef(_data.value).value;
+    },
+    successMsg: 'Traffic usage reset',
+  }
+);
+
+function resetTraffic() {
+  return _resetTraffic(undefined);
 }
 </script>

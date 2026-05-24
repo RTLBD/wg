@@ -84,6 +84,22 @@ function createPreparedStatement(db: DBType) {
       .delete(client)
       .where(eq(client.id, sql.placeholder('id')))
       .prepare(),
+    updateTrafficStats: db
+      .update(client)
+      .set({
+        trafficUsedBytes: sql.placeholder('trafficUsedBytes'),
+        trafficWgSnapshotBytes: sql.placeholder('trafficWgSnapshotBytes'),
+      })
+      .where(eq(client.id, sql.placeholder('id')))
+      .prepare(),
+    resetTraffic: db
+      .update(client)
+      .set({
+        trafficUsedBytes: 0,
+        trafficWgSnapshotBytes: 0,
+      })
+      .where(eq(client.id, sql.placeholder('id')))
+      .prepare(),
   };
 }
 
@@ -168,7 +184,7 @@ export class ClientService {
     return this.#statements.findById.execute({ id });
   }
 
-  async create({ name, expiresAt }: ClientCreateType) {
+  async create({ name, expiresAt, trafficLimitBytes }: ClientCreateType) {
     const privateKey = await wg.generatePrivateKey();
     const publicKey = await wg.getPublicKey(privateKey);
     const preSharedKey = await wg.generatePreSharedKey();
@@ -225,6 +241,9 @@ export class ClientService {
           persistentKeepalive: clientConfig.defaultPersistentKeepalive,
           serverAllowedIps: [],
           enabled: true,
+          trafficLimitBytes: trafficLimitBytes ?? null,
+          trafficUsedBytes: 0,
+          trafficWgSnapshotBytes: 0,
         })
         .returning({ clientId: client.id })
         .execute();
@@ -237,6 +256,22 @@ export class ClientService {
 
   delete(id: ID) {
     return this.#statements.delete.execute({ id });
+  }
+
+  updateTrafficStats(
+    id: ID,
+    trafficUsedBytes: number,
+    trafficWgSnapshotBytes: number
+  ) {
+    return this.#statements.updateTrafficStats.execute({
+      id,
+      trafficUsedBytes,
+      trafficWgSnapshotBytes,
+    });
+  }
+
+  resetTraffic(id: ID) {
+    return this.#statements.resetTraffic.execute({ id });
   }
 
   update(id: ID, data: UpdateClientType) {

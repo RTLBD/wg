@@ -1,3 +1,20 @@
+# WireGuard Easy (fork)
+
+Fork of [wg-easy/wg-easy](https://github.com/wg-easy/wg-easy) with **per-client lifetime traffic limits**.
+
+## Fork additions
+
+- Set a **traffic limit (GB)** per client in create/edit UI
+- Server tracks cumulative Rx+Tx usage (persisted across wg counter resets)
+- Client is **auto-disabled** when the limit is reached
+- **Reset traffic usage** button on client edit page
+
+Upstream docs: [https://wg-easy.github.io/wg-easy/latest](https://wg-easy.github.io/wg-easy/latest)
+
+Docker image: `ghcr.io/lamirshahinxl/wg-easy:15-traffic-limit`
+
+---
+
 # WireGuard Easy
 
 [![Build & Publish latest Image](https://github.com/wg-easy/wg-easy/actions/workflows/deploy.yml/badge.svg)](https://github.com/wg-easy/wg-easy/actions/workflows/deploy.yml)
@@ -32,6 +49,7 @@ You have found the easiest way to install & manage WireGuard on any Linux host!
 - CIDR support
 - 2FA support
 - Per-client firewall filtering (requires iptables)
+- **Per-client lifetime traffic limits** (this fork)
 
 > [!NOTE]
 > To better manage documentation for this project, it has its own site here: [https://wg-easy.github.io/wg-easy/latest](https://wg-easy.github.io/wg-easy/latest)

@@ -45,9 +45,16 @@ const serverAllowedIps = z.array(AddressSchema, {
   message: t('zod.client.serverAllowedIps'),
 });
 
+const trafficLimitBytes = z
+  .number({ message: t('zod.client.trafficLimitBytes') })
+  .int()
+  .positive()
+  .nullable();
+
 export const ClientCreateSchema = z.object({
   name: name,
   expiresAt: expiresAt,
+  trafficLimitBytes: trafficLimitBytes.optional(),
 });
 
 export type ClientCreateType = z.infer<typeof ClientCreateSchema>;
@@ -84,6 +91,7 @@ export const ClientUpdateSchema = schemaForType<UpdateClientType>()(
     persistentKeepalive: PersistentKeepaliveSchema,
     serverEndpoint: AddressSchema.nullable(),
     dns: DnsSchema.nullable(),
+    trafficLimitBytes: trafficLimitBytes,
   })
 );
 

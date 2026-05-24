@@ -123,6 +123,13 @@
     "viewConfig": "View Configuration",
     "firewallIps": "Firewall Allowed IPs",
     "firewallIpsDesc": "Destination IPs/CIDRs this client can access (server-side enforcement). Leave empty to use Allowed IPs. Supports optional port and protocol filtering. See docs for syntax.",
+    "trafficLimit": "Traffic Limit (GB)",
+    "trafficLimitDesc": "Lifetime data cap for this client. Leave blank for unlimited. Client is disabled when exceeded.",
+    "trafficUsed": "Traffic Used",
+    "trafficLimitReached": "Traffic limit reached",
+    "resetTraffic": "Reset Traffic Usage",
+    "resetTrafficDesc": "Clears accumulated usage counters for this client",
+    "trafficUnlimited": "Unlimited",
     "downloadPng": "Download PNG",
     "copyPng": "Copy PNG"
   },
@@ -206,7 +213,8 @@
       "address6": "IPv6 Address",
       "serverAllowedIps": "Server Allowed IPs",
       "firewallIps": "Firewall Allowed IPs",
-      "firewallIpsInvalid": "Invalid firewall IP entry. See docs for supported syntax."
+      "firewallIpsInvalid": "Invalid firewall IP entry. See docs for supported syntax.",
+      "trafficLimitBytes": "Traffic Limit"
     },
     "user": {
       "username": "Username",
