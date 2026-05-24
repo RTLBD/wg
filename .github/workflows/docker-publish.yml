@@ -4,6 +4,14 @@ on:
   push:
     tags:
       - '*-traffic-limit'
+    branches:
+      - feature/traffic-limit
+    paths:
+      - 'Dockerfile.prebuilt'
+      - 'scripts/build-fork-image.sh'
+      - 'src/**'
+      - '.github/workflows/docker-publish.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
