@@ -1,8 +1,12 @@
-FROM docker.io/library/node:krypton-alpine AS build
+# Harden Alpine base: busybox CVE-2025-60876 (r31 from edge), npm CVEs in bundled deps
+FROM docker.io/library/node:krypton-alpine AS base
+ARG ALPINE_EDGE_MAIN=https://dl-cdn.alpinelinux.org/alpine/edge/main
+RUN apk add --no-cache --repository=${ALPINE_EDGE_MAIN} busybox=1.37.0-r31 \
+    && npm install --global npm@latest corepack@latest
+
+FROM base AS build
 WORKDIR /app
 
-# update corepack
-RUN npm install --global corepack@latest
 # Install pnpm
 RUN corepack enable pnpm
 
@@ -30,13 +34,13 @@ RUN apk add linux-headers build-base go git && \
     make && \
     sed -i 's|\[\[ $proto == -4 \]\] && cmd sysctl -q net\.ipv4\.conf\.all\.src_valid_mark=1|[[ $proto == -4 ]] \&\& [[ $(sysctl -n net.ipv4.conf.all.src_valid_mark) != 1 ]] \&\& cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1|' ./wg-quick/linux.bash
 
-FROM docker.io/library/node:krypton-alpine AS build-libsql
+FROM base AS build-libsql
 WORKDIR /app
 RUN npm install --no-save --omit=dev libsql
 
 # Copy build result to a new image.
 # This saves a lot of disk space.
-FROM docker.io/library/node:krypton-alpine
+FROM base
 WORKDIR /app
 
 HEALTHCHECK --interval=1m --timeout=5s --retries=3 CMD /usr/bin/timeout 5s /bin/sh -c "/usr/bin/wg show | /bin/grep -q interface || exit 1"
@@ -82,6 +86,9 @@ RUN ln -sf /usr/sbin/iptables-legacy /usr/sbin/iptables && \
     ln -sf /usr/sbin/ip6tables-legacy /usr/sbin/ip6tables && \
     ln -sf /usr/sbin/ip6tables-legacy-restore /usr/sbin/ip6tables-restore && \
     ln -sf /usr/sbin/ip6tables-legacy-save /usr/sbin/ip6tables-save
+
+# Runtime uses node only; remove bundled npm (brace-expansion, ip-address CVEs in old npm)
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # Set Environment
 ENV DEBUG=Server,WireGuard,Database,CMD,Firewall
