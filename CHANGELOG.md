@@ -1,144 +1,53 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to **[RTLBD/wg](https://github.com/RTLBD/wg)** are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Note
+
+This file previously contained the full upstream [wg-easy/wg-easy](https://github.com/wg-easy/wg-easy) history. That history has been **cleared** so this changelog only tracks the **wg** fork.
+
+- **Upstream project:** [wg-easy/wg-easy](https://github.com/wg-easy/wg-easy) (base version **15.3.0**)
+- **Upstream changelog:** [wg-easy CHANGELOG](https://github.com/wg-easy/wg-easy/blob/master/CHANGELOG.md)
+- **Fork repository:** [https://github.com/RTLBD/wg](https://github.com/RTLBD/wg)
+- **Docker image:** `docker.io/imzami/wg` (`latest` and release tags)
+
+---
 
 ## [Unreleased]
 
 ### Added
 
-- AWG: support for H1-H4 ranges (https://github.com/wg-easy/wg-easy/pull/2480)
-- Client Firewall (https://github.com/wg-easy/wg-easy/pull/2418)
-- CLI: Show QR code (https://github.com/wg-easy/wg-easy/pull/2518)
-- Copy QR code to clipboard / save as png (https://github.com/wg-easy/wg-easy/pull/2521)
-
-### Fixed
-
-- Add trailing newline to Prometheus metrics output (https://github.com/wg-easy/wg-easy/pull/2573)
-- Correctly use DEBUG env var (https://github.com/wg-easy/wg-easy/pull/2619)
-
-### Changed
-
-- Hooks are now Textareas (https://github.com/wg-easy/wg-easy/pull/2522)
-- Update to Node Krypton (24) (https://github.com/wg-easy/wg-easy/pull/2536)
-- Mobile UI (https://github.com/wg-easy/wg-easy/pull/2569)
-- Prevent enabling client when expired (https://github.com/wg-easy/wg-easy/pull/2594)
-
-## [15.2.2] - 2026-02-06
-
-### Added
-
-- Added Userspace WireGuard support (https://github.com/wg-easy/wg-easy/pull/2419)
-
-### Fixed
-
-- LangSelector overlapping with Buttons (https://github.com/wg-easy/wg-easy/pull/2434)
-- AmnzeziaWG config parameters (https://github.com/wg-easy/wg-easy/pull/2440)
-- OpenMetrics help string format (https://github.com/wg-easy/wg-easy/pull/2453)
-- Reset 2fa when resetting admin password (https://github.com/wg-easy/wg-easy/pull/2461)
-
-### Docs
-
-- Replace Watchtower with maintained fork (https://github.com/wg-easy/wg-easy/pull/2456)
-
-## [15.2.1] - 2026-01-14
-
-### Fixed
-
-- Icon in Searchbar (https://github.com/wg-easy/wg-easy/commit/458f66818a400f181e2c6326ede077c8793d71f2)
-- Interface save not working (https://github.com/wg-easy/wg-easy/commit/48f3fbd715a889e2425702a8a46332f2752aef91)
-- Error Messages in Setup (https://github.com/wg-easy/wg-easy/commit/32a055093a76342c40858d8dcf563b0700a8bd48)
-
-## [15.2.0] - 2026-01-12
-
-### Added
-
-- AmneziaWG integration (https://github.com/wg-easy/wg-easy/pull/2102, https://github.com/wg-easy/wg-easy/pull/2226)
-- Search / filter box (https://github.com/wg-easy/wg-easy/pull/2170)
-- `INIT_ALLOWED_IPS` env var (https://github.com/wg-easy/wg-easy/pull/2164)
-- Show client endpoint (https://github.com/wg-easy/wg-easy/pull/2058)
-- Add option to view and copy config (https://github.com/wg-easy/wg-easy/pull/2289)
-
-### Fixed
-
-- Fix download as conf.txt (https://github.com/wg-easy/wg-easy/pull/2269)
-- Clean filename for OTL download (https://github.com/wg-easy/wg-easy/pull/2253)
-- Text color in admin menu in light mode (https://github.com/wg-easy/wg-easy/pull/2307)
+- Per-client **lifetime traffic limits** (auto-disable when exceeded, reset usage in UI)
+- Rebrand to **wg** (UI, CLI banner, locales, Docker image/service name)
+- **Makefile** helpers for Docker Compose (`make up`, `down`, `logs`, etc.)
+- **Multi-arch** Docker images (`linux/amd64`, `linux/arm64`)
+- Docker Hub publish via GitHub Actions (manual workflow or GitHub Release → version + `latest`)
+- **One-time links:** 60-minute default TTL, background create, click-to-copy
+- Default timezone **`Asia/Dhaka`** in Docker image and compose (`TZ` + `tzdata`)
+- `README` `docker run` example for `imzami/wg` with `INSECURE=true` for local HTTP
 
 ### Changed
 
-- Allow lower MTU (https://github.com/wg-easy/wg-easy/pull/2228)
-- Use /32 and /128 for client Cidr (https://github.com/wg-easy/wg-easy/pull/2217)
-- Return client id on create (https://github.com/wg-easy/wg-easy/pull/2190)
-- Publish on Codeberg (https://github.com/wg-easy/wg-easy/pull/2160)
-- Allow empty DNS (https://github.com/wg-easy/wg-easy/pull/2052, https://github.com/wg-easy/wg-easy/pull/2057)
-- Don't include keys in API responses (https://github.com/wg-easy/wg-easy/pull/2015)
-- Try all QR ecc levels (https://github.com/wg-easy/wg-easy/pull/2288)
-- Update OneTimeLink expiry on reuse (https://github.com/wg-easy/wg-easy/pull/2370)
-- Removed ARMv7 support (https://github.com/wg-easy/wg-easy/pull/2369)
-
-### Docs
-
-- Add AdGuard Home (https://github.com/wg-easy/wg-easy/pull/2175)
-- Add Routed (No NAT) docs (https://github.com/wg-easy/wg-easy/pull/2181, https://github.com/wg-easy/wg-easy/pull/2380)
-- Add AmneziaWG docs (https://github.com/wg-easy/wg-easy/pull/2108, https://github.com/wg-easy/wg-easy/pull/2292)
-
-## [15.1.0] - 2025-07-01
-
-### Added
-
-- Added Ukrainian language (#1906)
-- Add French language (#1924)
-- docs for caddy example (#1939)
-- add docs on how to add/update translation (be26db6)
-- Add german translations (#1889)
-- feat: Add Traditional Chinese (zh-HK) i18n Support (#1988)
-- Add Chinese Simplified (#1990)
-- Add option to disable ipv6 (#1951)
+- Removed legacy **`Dockerfile.prebuilt`** and **`scripts/build-fork-image.sh`** (upstream image overlay); aligned **`Dockerfile.dev`** with production base (tzdata, iptables symlinks, no `dpkg`)
+- Repository canonical URL: **https://github.com/RTLBD/wg**
+- GitHub release/update checks point at `RTLBD/wg`
+- CI: workflows target `main`; lint runs on fork; Edge workflow no longer deploys on push
+- Docker: build **wireguard-go** and **amneziawg-go** from source with patched Go modules (CVE fixes)
+- Docker: remove bundled **npm** from runtime image; upgrade **busybox** and global npm in build base
+- Docker publish: **Docker Hub only** (GHCR job removed); no push on every `main` commit
 
 ### Fixed
 
-- Updated container launch commands (#1989)
-- update screenshot (962bfa2)
+- Critical image CVEs (Alpine **busybox**, npm **brace-expansion**, **ip-address** in bundled npm)
+- Memory leaks: WireGuard cron timer, `clientsPersist` pruning, 2FA QR `objectURL` revoke
+- ESLint `no-dynamic-delete` in client chart persist logic
+- CI typecheck, Prettier, and ESLint failures for fork workflows
 
-### Changed
+---
 
-- Updated dependencies
+## [15.3.0] - 2026-06-02
 
-## [15.0.0] - 2025-05-28
-
-We're super excited to announce v15!
-This update is an entire rewrite to make it even easier to set up your own VPN.
-
-### Breaking Changes
-
-As the whole setup has changed, we recommend to start from scratch. And import your existing configs.
-
-### Major Changes
-
-- Almost all Environment variables removed
-- New and Improved UI
-- API Basic Authentication
-- Added Docs
-- Incrementing Version -> Semantic Versioning
-- CIDR Support
-- IPv6 Support
-- Changed API Structure
-- SQLite Database
-- Deprecated Dockerless Installations
-- Added Docker Volume Mount (`/lib/modules`)
-- Removed ARMv6 support
-- Connections over HTTP require setting the `INSECURE` env var
-- Changed license from CC BY-NC-SA 4.0 to AGPL-3.0-only
-- Added 2FA using TOTP
-- Improved mobile support
-- CLI
-- Replaced `nightly` with `edge`
-
-## [14.0.0] - 2024-09-04
-
-### Major changes
-
-- `PASSWORD` has been replaced by `PASSWORD_HASH`
+Fork baseline aligned with upstream **wg-easy v15.3.0**. See upstream [15.3.0 release notes](https://github.com/wg-easy/wg-easy/releases) for features inherited from wg-easy.

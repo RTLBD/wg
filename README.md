@@ -2,6 +2,8 @@
 
 WireGuard VPN with a web admin UI — fork of [wg-easy/wg-easy](https://github.com/wg-easy/wg-easy) with **per-client lifetime traffic limits**.
 
+**Repository:** [https://github.com/RTLBD/wg](https://github.com/RTLBD/wg)
+
 ## Fork additions
 
 - Set a **traffic limit (GB)** per client in create/edit UI
@@ -49,9 +51,10 @@ pnpm build
 ### Run with Docker Compose (recommended)
 
 ```shell
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 # or
-pnpm up
+make up
 ```
 
 - **WireGuard UDP:** `51820`
@@ -68,6 +71,14 @@ pnpm down
 
 ### Run with `docker run`
 
+Pull the image (use a release tag instead of `latest` if you prefer, e.g. `imzami/wg:15.3.0`):
+
+```shell
+docker pull imzami/wg:latest
+```
+
+Run the container:
+
 ```shell
 docker run -d \
   --name wg \
@@ -75,22 +86,33 @@ docker run -d \
   --cap-add SYS_MODULE \
   --sysctl net.ipv4.ip_forward=1 \
   --sysctl net.ipv4.conf.all.src_valid_mark=1 \
+  --sysctl net.ipv6.conf.all.disable_ipv6=0 \
+  --sysctl net.ipv6.conf.all.forwarding=1 \
+  --sysctl net.ipv6.conf.default.forwarding=1 \
   -v wg-data:/etc/wireguard \
   -v /lib/modules:/lib/modules:ro \
   -p 51820:51820/udp \
   -p 51821:51821/tcp \
+  -e TZ=Asia/Dhaka \
+  -e INSECURE=true \
   --restart unless-stopped \
-  wg
+  imzami/wg:latest
 ```
 
-Replace `wg` with another tag if you built with `-t myregistry/wg:15`.
+- **Web UI:** http://localhost:51821  
+- `INSECURE=true` allows the UI over HTTP (omit or set `INSECURE=false` in production behind HTTPS)
+
+Replace `imzami/wg:latest` with your own image if you build locally (`docker build -t wg .` → use `wg:latest`).
 
 ## Development
 
 ```shell
-pnpm dev      # dev container (Dockerfile.dev)
+make dev      # Docker: live-mounted src, pnpm dev (Dockerfile.dev)
+pnpm dev      # same via package.json → docker compose dev
 pnpm cli:dev  # CLI in dev container
 ```
+
+Production builds use the root `Dockerfile` only (not `Dockerfile.dev`).
 
 ## License
 

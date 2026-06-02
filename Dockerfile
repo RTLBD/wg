@@ -72,7 +72,10 @@ RUN apk add --no-cache \
     nftables \
     kmod \
     iptables-legacy \
-    wireguard-tools && \
+    wireguard-tools \
+    tzdata && \
+    cp /usr/share/zoneinfo/Asia/Dhaka /etc/localtime && \
+    echo "Asia/Dhaka" > /etc/timezone && \
     apk upgrade --no-cache && \
     sed -i 's|\[\[ $proto == -4 \]\] && cmd sysctl -q net\.ipv4\.conf\.all\.src_valid_mark=1|[[ $proto == -4 ]] \&\& [[ $(sysctl -n net.ipv4.conf.all.src_valid_mark) != 1 ]] \&\& cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1|' /usr/bin/wg-quick
 
@@ -91,6 +94,7 @@ RUN ln -sf /usr/sbin/iptables-legacy /usr/sbin/iptables && \
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # Set Environment
+ENV TZ=Asia/Dhaka
 ENV DEBUG=Server,WireGuard,Database,CMD,Firewall
 ENV PORT=51821
 ENV HOST=0.0.0.0
@@ -99,7 +103,7 @@ ENV INIT_ENABLED=false
 ENV DISABLE_IPV6=false
 
 LABEL org.opencontainers.image.title=wg
-LABEL org.opencontainers.image.source=https://github.com/RTLBD/wg-easy
+LABEL org.opencontainers.image.source=https://github.com/RTLBD/wg
 
 # Run Web UI
 CMD ["/usr/bin/dumb-init", "node", "server/index.mjs"]

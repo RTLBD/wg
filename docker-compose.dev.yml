@@ -16,6 +16,7 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     environment:
+      - TZ=Asia/Dhaka
       - INIT_ENABLED=true
       - INIT_HOST=test
       - INIT_PORT=51820

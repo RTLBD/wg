@@ -17,8 +17,9 @@ help: ## Show this help
 
 # --- Production (docker-compose.yml) ---
 
-up: ## Build (if needed) and start in background
-	$(COMPOSE_CMD) up -d --build
+up: ## Pull image and start in background
+	$(COMPOSE_CMD) pull $(SERVICE)
+	$(COMPOSE_CMD) up -d
 
 down: ## Stop and remove containers (keeps volumes)
 	$(COMPOSE_CMD) down
@@ -48,8 +49,8 @@ rebuild: ## Rebuild image without cache and start
 	$(COMPOSE_CMD) build --no-cache $(SERVICE)
 	$(COMPOSE_CMD) up -d
 
-pull: ## Pull prebuilt image tag (if using registry)
-	$(COMPOSE) pull $(SERVICE) 2>/dev/null || true
+pull: ## Pull image from Docker Hub (imzami/wg:latest)
+	$(COMPOSE_CMD) pull $(SERVICE)
 
 shell: ## Open shell in running container
 	$(COMPOSE_CMD) exec $(SERVICE) sh

@@ -3,12 +3,12 @@ volumes:
 
 services:
   wg:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: wg:latest
+    image: imzami/wg:latest
+    pull_policy: always
     container_name: wg
-    #environment:
+    environment:
+      TZ: Asia/Dhaka
+      INSECURE: "true"
     #  Optional:
     #  - PORT=51821
     #  - HOST=0.0.0.0

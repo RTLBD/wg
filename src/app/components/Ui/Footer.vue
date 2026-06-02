@@ -4,7 +4,7 @@
       <a
         class="hover:underline"
         target="_blank"
-        href="https://github.com/RTLBD/wg-easy"
+        href="https://github.com/RTLBD/wg"
         >wg</a
       >
       ({{ globalStore.information?.currentRelease }}) ·
