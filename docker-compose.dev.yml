@@ -1,5 +1,5 @@
 services:
-  wg-easy:
+  wg:
     build:
       dockerfile: ./Dockerfile.dev
     command: dev

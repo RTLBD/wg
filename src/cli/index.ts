@@ -36,7 +36,7 @@ const subCommandsMap = await generateSubCommands();
 
 const main = defineCommand({
   meta: {
-    name: 'wg-easy',
+    name: 'wg',
     version: packageJson.version,
     description: 'Command Line Interface',
   },

@@ -44,12 +44,12 @@
     "2faCode": "TOTP 코드"
   },
   "setup": {
-    "welcome": "wg-easy의 첫 번째 설정에 오신 것을 환영합니다.",
+    "welcome": "wg의 첫 번째 설정에 오신 것을 환영합니다.",
     "welcomeDesc": "모든 Linux 호스트에서 WireGuard를 설치하고 관리하는 가장 쉬운 방법을 찾았습니다",
     "existingSetup": "기존 설정이 있습니까?",
     "createAdminDesc": "먼저 관리자 사용자 이름과 강력한 보안 비밀번호를 입력하십시오. 이 정보는 관리 패널에 로그인하는 데 사용됩니다.",
     "setupConfigDesc": "호스트 및 포트 정보를 입력하십시오. 이는 장치에서 WireGuard를 설정할 때 클라이언트 구성에 사용됩니다.",
-    "setupMigrationDesc": "이전 wg-easy 버전에서 새 설정으로 데이터를 마이그레이션하려면 백업 파일을 제공하십시오.",
+    "setupMigrationDesc": "이전 wg 버전에서 새 설정으로 데이터를 마이그레이션하려면 백업 파일을 제공하십시오.",
     "upload": "업로드",
     "migration": "백업 복원:",
     "createAccount": "계정 생성",

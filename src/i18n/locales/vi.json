@@ -44,12 +44,12 @@
     "2faCode": "Mã TOTP"
   },
   "setup": {
-    "welcome": "Chào mừng đến với thiết lập đầu tiên của wg-easy",
+    "welcome": "Chào mừng đến với thiết lập đầu tiên của wg",
     "welcomeDesc": "Bạn đã tìm thấy cách dễ nhất để cài đặt và quản lý WireGuard trên bất kỳ máy chủ Linux nào",
     "existingSetup": "Bạn có hệ thống được cài đặt trước đây chưa?",
     "createAdminDesc": "Vui lòng nhập tên đăng nhập quản trị viên và mật khẩu mạnh. Thông tin này sẽ được sử dụng để đăng nhập vào bảng quản trị của bạn.",
     "setupConfigDesc": "Vui lòng cung cấp host và cổng. Những thông tin này sẽ được sử dụng để cấu hình WireGuard cho người dùng trên thiết bị của họ.",
-    "setupMigrationDesc": "Vui lòng cung cấp tệp sao lưu nếu bạn muốn chuyển dữ liệu từ phiên bản wg-easy trước sang cài đặt mới.",
+    "setupMigrationDesc": "Vui lòng cung cấp tệp sao lưu nếu bạn muốn chuyển dữ liệu từ phiên bản wg trước sang cài đặt mới.",
     "upload": "Tải lên",
     "migration": "Khôi phục bản sao lưu:",
     "createAccount": "Tạo tài khoản",

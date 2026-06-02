@@ -44,12 +44,12 @@
     "2faCode": "TOTP-kode"
   },
   "setup": {
-    "welcome": "Velkommen til ditt oppsett av wg-easy",
+    "welcome": "Velkommen til ditt oppsett av wg",
     "welcomeDesc": "Du har funnet den enkleste måten å installere og administrere WireGuard på en hvilken som helst Linux-vert",
     "existingSetup": "Har du et eksisterende oppsett?",
     "createAdminDesc": "Skriv først inn et adminbrukernavn og et sterkt, sikkert passord. Denne informasjonen brukes til å logge inn i administrasjonspanelet.",
     "setupConfigDesc": "Skriv inn vert- og portinformasjon. Dette brukes til klientkonfigurasjonen når du setter opp WireGuard på enhetene deres.",
-    "setupMigrationDesc": "Oppgi sikkerhetskopifilen hvis du vil migrere dataene dine fra forrige wg-easy-versjon til det nye oppsettet.",
+    "setupMigrationDesc": "Oppgi sikkerhetskopifilen hvis du vil migrere dataene dine fra forrige wg-versjon til det nye oppsettet.",
     "upload": "Last opp",
     "migration": "Gjenopprett sikkerhetskopien:",
     "createAccount": "Opprett konto",

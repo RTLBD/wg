@@ -44,12 +44,12 @@
     "2faCode": "Codice TOTP"
   },
   "setup": {
-    "welcome": "Benvenuto alla tua prima configurazione di wg-easy",
+    "welcome": "Benvenuto alla tua prima configurazione di wg",
     "welcomeDesc": "Hai trovato il modo più semplice per installare e gestire WireGuard su qualsiasi host Linux",
     "existingSetup": "Hai già una configurazione esistente?",
     "createAdminDesc": "Inserisci prima un nome utente admin e una password forte e sicura. Queste informazioni verranno usate per accedere al pannello di amministrazione.",
     "setupConfigDesc": "Inserisci le informazioni su host e porta. Saranno usate per la configurazione dei client quando imposteranno WireGuard sui loro dispositivi.",
-    "setupMigrationDesc": "Fornisci il file di backup se vuoi migrare i tuoi dati dalla precedente versione di wg-easy alla nuova installazione.",
+    "setupMigrationDesc": "Fornisci il file di backup se vuoi migrare i tuoi dati dalla precedente versione di wg alla nuova installazione.",
     "upload": "Carica",
     "migration": "Ripristina backup:",
     "createAccount": "Crea Account",

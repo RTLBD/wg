@@ -44,12 +44,12 @@
     "2faCode": "TOTP驗證碼"
   },
   "setup": {
-    "welcome": "歡迎首次設定wg-easy",
+    "welcome": "歡迎首次設定wg",
     "welcomeDesc": "這是在任何Linux主機上安裝與管理WireGuard最簡單的方法。",
     "existingSetup": "你有現存設定嗎？",
     "createAdminDesc": "請輸入管理員用戶名及高強度密碼。這些資料將用於登入管理員版面。",
     "setupConfigDesc": "請輸入主機及連接埠資料。這將用於客戶端設定，以便在他們的裝置上設定WireGuard。",
-    "setupMigrationDesc": "如果你想將舊版wg-easy的資料轉移到新設定，請提供備份檔案。",
+    "setupMigrationDesc": "如果你想將舊版wg的資料轉移到新設定，請提供備份檔案。",
     "upload": "上傳",
     "migration": "還原備份：",
     "createAccount": "建立帳戶",

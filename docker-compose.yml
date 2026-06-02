@@ -2,15 +2,17 @@ volumes:
   etc_wireguard:
 
 services:
-  wg-easy:
+  wg:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wg:latest
+    container_name: wg
     #environment:
     #  Optional:
     #  - PORT=51821
     #  - HOST=0.0.0.0
     #  - INSECURE=false
-
-    image: ghcr.io/wg-easy/wg-easy:15
-    container_name: wg-easy
     networks:
       wg:
         ipv4_address: 10.42.42.42

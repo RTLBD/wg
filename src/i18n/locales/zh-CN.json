@@ -44,12 +44,12 @@
     "2faCode": "验证码"
   },
   "setup": {
-    "welcome": "欢迎使用wg-easy安装向导",
+    "welcome": "欢迎使用wg安装向导",
     "welcomeDesc": "您正在使用最简单的WireGuard Linux主机安装和管理方案",
     "existingSetup": "是否已有现有配置？",
     "createAdminDesc": "请首先输入管理员用户名和强密码。这些信息将用于登录管理面板。",
     "setupConfigDesc": "请输入服务器主机和端口信息。这些设置将用于客户端设备连接WireGuard时的配置。",
-    "setupMigrationDesc": "如果您希望从旧版wg-easy迁移数据到新安装，请提供备份文件。",
+    "setupMigrationDesc": "如果您希望从旧版wg迁移数据到新安装，请提供备份文件。",
     "upload": "上传文件",
     "migration": "从备份恢复配置：",
     "createAccount": "创建账户",

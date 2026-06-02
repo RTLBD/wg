@@ -16,8 +16,8 @@ RUN pnpm build
 
 # Build amneziawg-tools
 RUN apk add linux-headers build-base go git && \
-    git clone https://github.com/amnezia-vpn/amneziawg-tools.git && \
-    git clone https://github.com/amnezia-vpn/amneziawg-go && \
+    git clone https://github.com/zamibd/amneziawg-tools && \
+    git clone https://github.com/zamibd/amneziawg-go && \
     cd amneziawg-go && \
     make && \
     cd ../amneziawg-tools/src && \
@@ -81,7 +81,8 @@ ENV INSECURE=false
 ENV INIT_ENABLED=false
 ENV DISABLE_IPV6=false
 
-LABEL org.opencontainers.image.source=https://github.com/lAmirshahinxl/wg-easy
+LABEL org.opencontainers.image.title=wg
+LABEL org.opencontainers.image.source=https://github.com/RTLBD/wg-easy
 
 # Run Web UI
 CMD ["/usr/bin/dumb-init", "node", "server/index.mjs"]

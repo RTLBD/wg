@@ -44,12 +44,12 @@
     "2faCode": "Kode TOTP"
   },
   "setup": {
-    "welcome": "Selamat datang di pengaturan pertama wg-easy anda",
+    "welcome": "Selamat datang di pengaturan pertama wg anda",
     "welcomeDesc": "Anda telah menemukan cara termudah untuk menginstal dan mengelola WireGuard di host Linux mana pun",
     "existingSetup": "Apakah anda sudah memiliki pengaturan sebelumnya?",
     "createAdminDesc": "Silakan masukkan dulu nama pengguna admin dan kata sandi yang kuat dan aman. Informasi ini akan digunakan untuk masuk ke panel administrasi Anda.",
     "setupConfigDesc": "Silakan masukkan informasi host dan port. Ini akan digunakan untuk konfigurasi klien saat mengatur WireGuard di perangkat mereka.",
-    "setupMigrationDesc": "Silakan berikan file cadangan jika anda ingin memigrasikan data dari versi wg-easy sebelumnya ke pengaturan baru anda.",
+    "setupMigrationDesc": "Silakan berikan file cadangan jika anda ingin memigrasikan data dari versi wg sebelumnya ke pengaturan baru anda.",
     "upload": "Unggah",
     "migration": "Pulihkan cadangan:",
     "createAccount": "Buat Akun",

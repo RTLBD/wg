@@ -44,12 +44,12 @@
     "2faCode": "TOTP kód"
   },
   "setup": {
-    "welcome": "Vítejte u první instalace wg-easy",
+    "welcome": "Vítejte u první instalace wg",
     "welcomeDesc": "Našli jste nejjednodušší způsob, jak instalovat a spravovat WireGuard na jakémkoliv Linuxovém hostiteli",
     "existingSetup": "Máte již existující nastavení?",
     "createAdminDesc": "Nejprve zadejte uživatelské jméno administrátora a silné heslo. Tyto údaje budou použity pro přihlášení do administrace.",
     "setupConfigDesc": "Zadejte údaje o hostiteli a portu. Tyto informace budou použity pro konfiguraci klientů při nastavování WireGuard na jejich zařízeních.",
-    "setupMigrationDesc": "Pokud chcete migrovat data z předchozí verze wg-easy do nové instalace, nahrajte soubor se zálohou.",
+    "setupMigrationDesc": "Pokud chcete migrovat data z předchozí verze wg do nové instalace, nahrajte soubor se zálohou.",
     "upload": "Nahrát",
     "migration": "Obnovit zálohu:",
     "createAccount": "Vytvořit účet",

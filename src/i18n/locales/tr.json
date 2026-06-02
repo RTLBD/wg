@@ -44,12 +44,12 @@
     "2faCode": "TOTP Kodu"
   },
   "setup": {
-    "welcome": "wg-easy kurulumuna hoş geldiniz",
+    "welcome": "wg kurulumuna hoş geldiniz",
     "welcomeDesc": "Linux üzerinde WireGuard kurmanın ve yönetmenin en kolay yolu.",
     "existingSetup": "Mevcut bir kurulumunuz var mı?",
     "createAdminDesc": "Yönetim paneline giriş için bir kullanıcı adı ve güçlü bir şifre belirleyin.",
     "setupConfigDesc": "İstemci cihazların bağlanacağı Host ve Port bilgilerini girin.",
-    "setupMigrationDesc": "Eski wg-easy verilerinizi taşımak için yedek dosyasını yükleyebilirsiniz.",
+    "setupMigrationDesc": "Eski wg verilerinizi taşımak için yedek dosyasını yükleyebilirsiniz.",
     "upload": "Yükle",
     "migration": "Yedeği Geri Yükle:",
     "createAccount": "Hesap Oluştur",

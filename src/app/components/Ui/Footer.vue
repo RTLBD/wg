@@ -4,29 +4,15 @@
       <a
         class="hover:underline"
         target="_blank"
-        href="https://github.com/wg-easy/wg-easy"
-        >WireGuard Easy</a
+        href="https://github.com/RTLBD/wg-easy"
+        >wg</a
       >
-      ({{ globalStore.information?.currentRelease }}) © 2021-2026 by
-      <a
-        class="hover:underline"
-        target="_blank"
-        href="https://emile.nl/?ref=wg-easy"
-        >Emile Nijssen</a
-      >
-      is licensed under
+      ({{ globalStore.information?.currentRelease }}) ·
       <a
         class="hover:underline"
         target="_blank"
         href="https://opensource.org/license/agpl-v3"
         >AGPL-3.0-only</a
-      >
-      ·
-      <a
-        class="hover:underline"
-        href="https://github.com/wg-easy/wg-easy#donate"
-        target="_blank"
-        >{{ $t('layout.donate') }}</a
       >
     </p>
   </footer>

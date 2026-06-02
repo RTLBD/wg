@@ -5,7 +5,7 @@ export type WGSession = Partial<{
   userId: ID;
 }>;
 
-const name = 'wg-easy';
+const name = 'wg';
 
 export async function useWGSession(event: H3Event, rememberMe = false) {
   const sessionConfig = await Database.general.getSessionConfig();
