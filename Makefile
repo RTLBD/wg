@@ -10,7 +10,7 @@ IMAGE ?= wg:latest
 COMPOSE_CMD = $(COMPOSE) -f $(COMPOSE_FILE)
 COMPOSE_DEV = $(COMPOSE) -f $(COMPOSE_DEV_FILE)
 
-.PHONY: help up down restart logs logs-f ps build rebuild pull stop start shell exec dev dev-down dev-logs cli clean prune
+.PHONY: help up down restart logs logs-f ps build rebuild pull stop start shell exec dev dev-down dev-logs cli clean prune image image-multiarch
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -73,8 +73,12 @@ cli: ## Run CLI in dev container
 
 # --- Image (without compose) ---
 
-image: ## Build Docker image tag locally
+image: ## Build Docker image tag locally (host architecture)
 	docker build -t $(IMAGE) .
+
+image-multiarch: ## Build amd64+arm64 and push (set REGISTRY=user/wg)
+	@test -n "$(REGISTRY)" || (echo "Usage: make image-multiarch REGISTRY=docker.io/user/wg" && exit 1)
+	docker buildx build --platform linux/amd64,linux/arm64 -t $(REGISTRY):latest --push .
 
 # --- Cleanup ---
 

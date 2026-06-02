@@ -17,7 +17,14 @@ Build and run your own image from the repo `Dockerfile`, or pull a CI-built imag
 
 ### CI publish (GitHub Actions)
 
-On push to `main`, the workflow builds and pushes:
+On push to `main`, the workflow builds and pushes a **multi-arch manifest** for:
+
+| Platform | Typical use |
+|----------|-------------|
+| `linux/amd64` | Linux VPS, Intel/AMD Mac or PC with Docker Desktop |
+| `linux/arm64` | Raspberry Pi, ARM cloud, Apple Silicon Mac with Docker Desktop |
+
+`docker pull` picks the right architecture automatically. The image is a **Linux** VPN server (runs in Docker on Linux, or inside Docker Desktop’s Linux VM on macOS and Windows — not a native Windows container).
 
 - **Docker Hub:** `docker.io/<DOCKERHUB_USERNAME>/wg:latest`
 - **GHCR:** `ghcr.io/rtlbd/wg:latest` (optional; may require package permissions)
