@@ -13,11 +13,14 @@ Upstream docs (reference): [https://wg-easy.github.io/wg-easy/latest](https://wg
 
 ## Docker image: `wg`
 
-Build and run your own image from the repo `Dockerfile`, or pull a CI-built image from Docker Hub / GHCR.
+Build and run your own image from the repo `Dockerfile`, or pull a published image from Docker Hub.
 
 ### CI publish (GitHub Actions)
 
-On push to `main`, the workflow builds and pushes a **multi-arch manifest** for:
+The **Publish Docker image** workflow pushes a **multi-arch** image (`linux/amd64`, `linux/arm64`) to Docker Hub only when:
+
+- You run it manually (**Actions → Publish Docker image → Run workflow**), or
+- You publish a **GitHub Release** (tags the image with the release version and `latest`).
 
 | Platform | Typical use |
 |----------|-------------|
@@ -26,8 +29,7 @@ On push to `main`, the workflow builds and pushes a **multi-arch manifest** for:
 
 `docker pull` picks the right architecture automatically. The image is a **Linux** VPN server (runs in Docker on Linux, or inside Docker Desktop’s Linux VM on macOS and Windows — not a native Windows container).
 
-- **Docker Hub:** `docker.io/<DOCKERHUB_USERNAME>/wg:latest`
-- **GHCR:** `ghcr.io/rtlbd/wg:latest` (optional; may require package permissions)
+- **Docker Hub:** `docker.io/<DOCKERHUB_USERNAME>/wg:latest` and `docker.io/<DOCKERHUB_USERNAME>/wg:<version>` (e.g. `15.3.0` from tag `v15.3.0`)
 
 Add these **repository secrets** in GitHub → Settings → Secrets → Actions:
 
@@ -35,8 +37,6 @@ Add these **repository secrets** in GitHub → Settings → Secrets → Actions:
 |--------|--------|
 | `DOCKERHUB_USERNAME` | Your Docker Hub username |
 | `DOCKERHUB_PASSWORD` | Docker Hub [access token](https://hub.docker.com/settings/security) (not your account password) |
-
-Ensure **Settings → Actions → General → Workflow permissions** is set to **Read and write** so `GITHUB_TOKEN` can publish to GHCR.
 
 ### Build
 
