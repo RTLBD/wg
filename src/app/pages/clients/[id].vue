@@ -251,8 +251,7 @@ const trafficLimitGb = ref(
 watch(
   () => data.value?.trafficLimitBytes,
   (limitBytes) => {
-    trafficLimitGb.value =
-      bytesToGb(limitBytes ?? null)?.toString() ?? '';
+    trafficLimitGb.value = bytesToGb(limitBytes ?? null)?.toString() ?? '';
   }
 );
 

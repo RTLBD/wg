@@ -87,8 +87,12 @@ function createPreparedStatement(db: DBType) {
     updateTrafficStats: db
       .update(client)
       .set({
-        trafficUsedBytes: sql.placeholder('trafficUsedBytes'),
-        trafficWgSnapshotBytes: sql.placeholder('trafficWgSnapshotBytes'),
+        trafficUsedBytes: sql.placeholder(
+          'trafficUsedBytes'
+        ) as never as number,
+        trafficWgSnapshotBytes: sql.placeholder(
+          'trafficWgSnapshotBytes'
+        ) as never as number,
       })
       .where(eq(client.id, sql.placeholder('id')))
       .prepare(),

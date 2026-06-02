@@ -1,10 +1,10 @@
 import fs from 'node:fs/promises';
 import { createDebug } from 'obug';
-import type { InterfaceType } from '#db/repositories/interface/types';
 import {
   computeTrafficUsageUpdate,
   isTrafficLimitExceeded,
 } from './trafficLimit';
+import type { InterfaceType } from '#db/repositories/interface/types';
 
 const WG_DEBUG = createDebug('WireGuard');
 

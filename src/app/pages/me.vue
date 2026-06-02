@@ -177,14 +177,17 @@ const _setup2fa = useSubmit(
   },
   {
     revert: async (success, data) => {
-      if (success && data?.type === 'setup') {
-        const qrcode = encodeQR(data.uri, 'svg', {
+      const result = data as
+        | { type: 'setup'; uri: string; key: string }
+        | undefined;
+      if (success && result?.type === 'setup') {
+        const qrcode = encodeQR(result.uri, 'svg', {
           ecc: 'high',
           scale: 4,
           encoding: 'byte',
         });
         const svg = new Blob([qrcode], { type: 'image/svg+xml' });
-        twofa.value = { key: data.key, qrcode: URL.createObjectURL(svg) };
+        twofa.value = { key: result.key, qrcode: URL.createObjectURL(svg) };
       }
     },
   }
@@ -205,7 +208,8 @@ const _enable2fa = useSubmit(
   },
   {
     revert: async (success, data) => {
-      if (success && data?.type === 'created') {
+      const result = data as { type?: string } | undefined;
+      if (success && result?.type === 'created') {
         authStore.update();
         twofa.value = null;
         code.value = '';
@@ -230,7 +234,8 @@ const _disable2fa = useSubmit(
   },
   {
     revert: async (success, data) => {
-      if (success && data?.type === 'deleted') {
+      const result = data as { type?: string } | undefined;
+      if (success && result?.type === 'deleted') {
         authStore.update();
         disable2faPassword.value = '';
       }

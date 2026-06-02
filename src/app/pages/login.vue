@@ -84,10 +84,11 @@ const _submit = useSubmit(
   },
   {
     revert: async (success, data) => {
+      const result = data as { status?: string } | undefined;
       if (success) {
-        if (data?.status === 'success') {
+        if (result?.status === 'success') {
           await navigateTo('/');
-        } else if (data?.status === 'TOTP_REQUIRED') {
+        } else if (result?.status === 'TOTP_REQUIRED') {
           authenticating.value = false;
           totpRequired.value = true;
           toast.showToast({
@@ -96,7 +97,7 @@ const _submit = useSubmit(
             type: 'error',
           });
           return;
-        } else if (data?.status === 'INVALID_TOTP_CODE') {
+        } else if (result?.status === 'INVALID_TOTP_CODE') {
           authenticating.value = false;
           totp.value = '';
           toast.showToast({

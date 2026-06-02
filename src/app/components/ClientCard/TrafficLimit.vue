@@ -11,7 +11,10 @@
       {{ bytes(client.trafficUsedBytes ?? 0) }} /
       {{ bytes(client.trafficLimitBytes) }}
     </span>
-    <span v-if="limitReached" class="ml-1 font-medium text-red-600 dark:text-red-400">
+    <span
+      v-if="limitReached"
+      class="ml-1 font-medium text-red-600 dark:text-red-400"
+    >
       ({{ $t('client.trafficLimitReached') }})
     </span>
   </span>
