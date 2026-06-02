@@ -5,8 +5,9 @@ on:
     tags:
       - '*-traffic-limit'
     branches:
-      - feature/traffic-limit
+      - main
     paths:
+      - 'Dockerfile'
       - 'Dockerfile.prebuilt'
       - 'scripts/build-fork-image.sh'
       - 'src/**'
