@@ -14,13 +14,19 @@ RUN pnpm install
 COPY src ./
 RUN pnpm build
 
-# Build amneziawg-tools
+# Build amneziawg-tools and wireguard-go (patched x/crypto + x/net; Alpine wireguard-go is outdated)
 RUN apk add linux-headers build-base go git && \
-    git clone https://github.com/zamibd/amneziawg-tools && \
-    git clone https://github.com/zamibd/amneziawg-go && \
+    git clone --depth 1 https://github.com/zamibd/amneziawg-tools.git && \
+    git clone --depth 1 https://github.com/zamibd/amneziawg-go && \
     cd amneziawg-go && \
-    make && \
-    cd ../amneziawg-tools/src && \
+    GOTOOLCHAIN=auto make && \
+    cd /app && \
+    git clone --depth 1 https://github.com/WireGuard/wireguard-go.git && \
+    cd wireguard-go && \
+    GOTOOLCHAIN=auto go get golang.org/x/crypto@v0.52.0 golang.org/x/net@v0.55.0 golang.org/x/sys@v0.45.0 && \
+    GOTOOLCHAIN=auto go mod tidy && \
+    GOTOOLCHAIN=auto make && \
+    cd /app/amneziawg-tools/src && \
     make && \
     sed -i 's|\[\[ $proto == -4 \]\] && cmd sysctl -q net\.ipv4\.conf\.all\.src_valid_mark=1|[[ $proto == -4 ]] \&\& [[ $(sysctl -n net.ipv4.conf.all.src_valid_mark) != 1 ]] \&\& cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1|' ./wg-quick/linux.bash
 
@@ -45,33 +51,37 @@ COPY --from=build-libsql /app/node_modules /app/server/node_modules
 # cli
 COPY --from=build /app/cli/cli.sh /usr/local/bin/cli
 RUN chmod +x /usr/local/bin/cli
-# Copy amneziawg-go
+# Copy amneziawg-go and patched wireguard-go (userspace fallback for wg-quick)
 COPY --from=build /app/amneziawg-go/amneziawg-go /usr/bin/amneziawg-go
-RUN chmod +x /usr/bin/amneziawg-go
+COPY --from=build /app/wireguard-go/wireguard-go /usr/bin/wireguard-go
+RUN chmod +x /usr/bin/amneziawg-go /usr/bin/wireguard-go
 # Copy amneziawg-tools
 COPY --from=build /app/amneziawg-tools/src/wg /usr/bin/awg
 COPY --from=build /app/amneziawg-tools/src/wg-quick/linux.bash /usr/bin/awg-quick
 RUN chmod +x /usr/bin/awg /usr/bin/awg-quick
 
-# Install Linux packages
+# Install Linux packages (wireguard-go is built above; do not install vulnerable apk package)
 RUN apk add --no-cache \
-    dpkg \
     dumb-init \
     iptables \
     ip6tables \
     nftables \
     kmod \
     iptables-legacy \
-    wireguard-go \
     wireguard-tools && \
+    apk upgrade --no-cache && \
     sed -i 's|\[\[ $proto == -4 \]\] && cmd sysctl -q net\.ipv4\.conf\.all\.src_valid_mark=1|[[ $proto == -4 ]] \&\& [[ $(sysctl -n net.ipv4.conf.all.src_valid_mark) != 1 ]] \&\& cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1|' /usr/bin/wg-quick
 
 RUN mkdir -p /etc/amnezia
 RUN ln -s /etc/wireguard /etc/amnezia/amneziawg
 
-# Use iptables-legacy
-RUN update-alternatives --install /usr/sbin/iptables iptables /usr/sbin/iptables-legacy 10 --slave /usr/sbin/iptables-restore iptables-restore /usr/sbin/iptables-legacy-restore --slave /usr/sbin/iptables-save iptables-save /usr/sbin/iptables-legacy-save
-RUN update-alternatives --install /usr/sbin/ip6tables ip6tables /usr/sbin/ip6tables-legacy 10 --slave /usr/sbin/ip6tables-restore ip6tables-restore /usr/sbin/ip6tables-legacy-restore --slave /usr/sbin/ip6tables-save ip6tables-save /usr/sbin/ip6tables-legacy-save
+# Use iptables-legacy (symlinks avoid dpkg/update-alternatives, which pulls vulnerable tar)
+RUN ln -sf /usr/sbin/iptables-legacy /usr/sbin/iptables && \
+    ln -sf /usr/sbin/iptables-legacy-restore /usr/sbin/iptables-restore && \
+    ln -sf /usr/sbin/iptables-legacy-save /usr/sbin/iptables-save && \
+    ln -sf /usr/sbin/ip6tables-legacy /usr/sbin/ip6tables && \
+    ln -sf /usr/sbin/ip6tables-legacy-restore /usr/sbin/ip6tables-restore && \
+    ln -sf /usr/sbin/ip6tables-legacy-save /usr/sbin/ip6tables-save
 
 # Set Environment
 ENV DEBUG=Server,WireGuard,Database,CMD,Firewall
