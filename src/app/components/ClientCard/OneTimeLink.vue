@@ -1,51 +1,91 @@
 <template>
-  <div v-if="client.oneTimeLink !== null" class="text-xs text-gray-400">
-    <a :href="'./cnf/' + client.oneTimeLink.oneTimeLink">{{ path }}</a>
+  <div v-if="client.oneTimeLink !== null" class="text-xs">
+    <button
+      type="button"
+      class="max-w-full truncate text-left text-sky-600 underline decoration-dotted underline-offset-2 transition hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
+      :title="$t('client.otlClickToCopy')"
+      @click="copyDisplayedLink"
+    >
+      {{ label }}
+    </button>
+    <span
+      v-if="copied"
+      class="ml-1 font-medium text-green-600 dark:text-green-400"
+    >
+      {{ $t('client.otlCopiedShort') }}
+    </span>
   </div>
 </template>
 
 <script setup lang="ts">
+import {
+  copyOneTimeLink,
+  formatOneTimeLinkTimeLeft,
+  getOneTimeLinkUrl,
+} from '~/utils/oneTimeLink';
+
 const props = defineProps<{ client: LocalClient }>();
 
-const path = ref('Loading...');
-const timer = ref<NodeJS.Timeout | null>(null);
+const { t } = useI18n();
+const toast = useToast();
 
-const { localeProperties } = useI18n();
+const label = ref('');
+const copied = ref(false);
+const timer = ref<ReturnType<typeof setInterval> | null>(null);
+let copiedTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const fullUrl = computed(() => {
+  if (props.client.oneTimeLink === null) {
+    return '';
+  }
+  return getOneTimeLinkUrl(props.client.oneTimeLink.oneTimeLink);
+});
+
+function updateLabel() {
+  if (props.client.oneTimeLink === null) {
+    return;
+  }
+
+  const timeLeft =
+    new Date(props.client.oneTimeLink.expiresAt).getTime() - Date.now();
+  const remaining = formatOneTimeLinkTimeLeft(timeLeft);
+
+  label.value = `${fullUrl.value} (${remaining})`;
+}
+
+async function copyDisplayedLink() {
+  if (!fullUrl.value) {
+    return;
+  }
+
+  const ok = await copyOneTimeLink(fullUrl.value);
+  if (ok) {
+    copied.value = true;
+    if (copiedTimeout) {
+      clearTimeout(copiedTimeout);
+    }
+    copiedTimeout = setTimeout(() => {
+      copied.value = false;
+    }, 2000);
+  } else {
+    toast.showToast({
+      type: 'error',
+      message: t('client.otlCopyFailed'),
+    });
+  }
+}
 
 onMounted(() => {
-  timer.value = setIntervalImmediately(() => {
-    if (props.client.oneTimeLink === null) {
-      return;
-    }
-
-    const timeLeft =
-      new Date(props.client.oneTimeLink.expiresAt).getTime() - Date.now();
-
-    if (timeLeft <= 0) {
-      path.value = `${document.location.protocol}//${document.location.host}/cnf/${props.client.oneTimeLink.oneTimeLink} (00:00)`;
-      return;
-    }
-
-    const formatter = new Intl.DateTimeFormat(localeProperties.value.language, {
-      minute: '2-digit',
-      second: '2-digit',
-      hourCycle: 'h23',
-    });
-
-    const minutes = Math.floor(timeLeft / 60000);
-    const seconds = Math.floor((timeLeft % 60000) / 1000);
-
-    const date = new Date(0);
-    date.setMinutes(minutes);
-    date.setSeconds(seconds);
-
-    path.value = `${document.location.protocol}//${document.location.host}/cnf/${props.client.oneTimeLink.oneTimeLink} (${formatter.format(date)})`;
-  }, 1000);
+  updateLabel();
+  timer.value = setInterval(updateLabel, 1000);
 });
 
 onUnmounted(() => {
   if (timer.value) {
-    clearTimeout(timer.value);
+    clearInterval(timer.value);
+  }
+  if (copiedTimeout) {
+    clearTimeout(copiedTimeout);
   }
 });
 </script>

@@ -12,3 +12,9 @@ const oneTimeLinkType = z
 export const OneTimeLinkGetSchema = z.object({
   oneTimeLink: oneTimeLinkType,
 });
+
+export const OneTimeLinkGenerateSchema = z.object({
+  durationMinutes: z.number().int().min(5).max(60).optional(),
+});
+
+export type OneTimeLinkGenerateType = z.infer<typeof OneTimeLinkGenerateSchema>;

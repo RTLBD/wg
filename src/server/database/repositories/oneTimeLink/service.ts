@@ -51,12 +51,15 @@ export class OneTimeLinkService {
     return this.#statements.findByOneTimeLink.execute({ oneTimeLink });
   }
 
-  generate(id: ID) {
+  /** @param durationMinutes between 5 and 60 (default 60) */
+  async generate(id: ID, durationMinutes = 60) {
+    const minutes = Math.min(60, Math.max(5, Math.round(durationMinutes)));
     const key = `${id}-${Math.floor(Math.random() * 1000)}`;
     const oneTimeLink = Math.abs(CRC32.str(key)).toString(16);
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+    const expiresAt = new Date(Date.now() + minutes * 60 * 1000).toISOString();
 
-    return this.#statements.create.execute({ id, oneTimeLink, expiresAt });
+    await this.#statements.create.execute({ id, oneTimeLink, expiresAt });
+    return { oneTimeLink, expiresAt };
   }
 
   erase(id: ID) {
