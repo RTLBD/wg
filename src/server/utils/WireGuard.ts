@@ -12,6 +12,8 @@ const generateRandomHeaderValue = () =>
   Math.floor(Math.random() * 2147483642) + 5;
 
 class WireGuard {
+  #cronIntervalId: ReturnType<typeof setInterval> | null = null;
+
   /**
    * Save and sync config
    */
@@ -276,7 +278,11 @@ class WireGuard {
 
   // TODO: handle as worker_thread
   async startCronJob() {
-    setIntervalImmediately(() => {
+    if (this.#cronIntervalId !== null) {
+      return;
+    }
+
+    this.#cronIntervalId = setIntervalImmediately(() => {
       this.cronJob().catch((err) => {
         WG_DEBUG('Running Cron Job failed.');
         console.error(err);
@@ -286,6 +292,11 @@ class WireGuard {
 
   // Shutdown wireguard
   async Shutdown() {
+    if (this.#cronIntervalId !== null) {
+      clearInterval(this.#cronIntervalId);
+      this.#cronIntervalId = null;
+    }
+
     const wgInterface = await Database.interfaces.get();
     await wg.down(wgInterface.name).catch(() => {});
   }

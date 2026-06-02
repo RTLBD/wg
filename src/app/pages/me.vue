@@ -170,6 +170,22 @@ function updatePassword() {
 
 const twofa = ref<{ key: string; qrcode: string } | null>(null);
 
+function clearTwofaQr() {
+  if (twofa.value?.qrcode) {
+    URL.revokeObjectURL(twofa.value.qrcode);
+  }
+  twofa.value = null;
+}
+
+function setTwofaQr(key: string, svgBlob: Blob) {
+  clearTwofaQr();
+  twofa.value = { key, qrcode: URL.createObjectURL(svgBlob) };
+}
+
+onUnmounted(() => {
+  clearTwofaQr();
+});
+
 const _setup2fa = useSubmit(
   `/api/me/totp`,
   {
@@ -187,7 +203,7 @@ const _setup2fa = useSubmit(
           encoding: 'byte',
         });
         const svg = new Blob([qrcode], { type: 'image/svg+xml' });
-        twofa.value = { key: result.key, qrcode: URL.createObjectURL(svg) };
+        setTwofaQr(result.key, svg);
       }
     },
   }
@@ -211,7 +227,7 @@ const _enable2fa = useSubmit(
       const result = data as { type?: string } | undefined;
       if (success && result?.type === 'created') {
         authStore.update();
-        twofa.value = null;
+        clearTwofaQr();
         code.value = '';
       }
     },

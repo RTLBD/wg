@@ -133,6 +133,13 @@ export const useClientsStore = defineStore('Clients', () => {
         'name',
         globalStore.sortClient
       );
+
+      const activeIds = new Set(transformedClients.map((c) => String(c.id)));
+      for (const id of Object.keys(clientsPersist.value)) {
+        if (!activeIds.has(id)) {
+          delete clientsPersist.value[id];
+        }
+      }
     }
 
     clients.value = transformedClients ?? null;
