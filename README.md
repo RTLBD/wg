@@ -13,7 +13,23 @@ Upstream docs (reference): [https://wg-easy.github.io/wg-easy/latest](https://wg
 
 ## Docker image: `wg`
 
-Build and run your own image from the repo `Dockerfile` (no upstream registry required).
+Build and run your own image from the repo `Dockerfile`, or pull a CI-built image from Docker Hub / GHCR.
+
+### CI publish (GitHub Actions)
+
+On push to `main`, the workflow builds and pushes:
+
+- **Docker Hub:** `docker.io/<DOCKERHUB_USERNAME>/wg:latest`
+- **GHCR:** `ghcr.io/rtlbd/wg:latest` (optional; may require package permissions)
+
+Add these **repository secrets** in GitHub → Settings → Secrets → Actions:
+
+| Secret | Value |
+|--------|--------|
+| `DOCKERHUB_USERNAME` | Your Docker Hub username |
+| `DOCKERHUB_PASSWORD` | Docker Hub [access token](https://hub.docker.com/settings/security) (not your account password) |
+
+Ensure **Settings → Actions → General → Workflow permissions** is set to **Read and write** so `GITHUB_TOKEN` can publish to GHCR.
 
 ### Build
 
