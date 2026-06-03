@@ -174,14 +174,20 @@ export const schemaForType =
 
 type TranslateFn = (key: string, params?: unknown[]) => string;
 
-function zodFieldLabel(issue: z.core.$ZodIssue, translate: TranslateFn): string {
+function zodFieldLabel(
+  issue: z.core.$ZodIssue,
+  translate: TranslateFn
+): string {
   if (issue.message.startsWith('zod.')) {
     return translate(issue.message);
   }
   return issue.path.join('.') || 'field';
 }
 
-function formatZodIssue(issue: z.core.$ZodIssue, translate: TranslateFn): string {
+function formatZodIssue(
+  issue: z.core.$ZodIssue,
+  translate: TranslateFn
+): string {
   if (issue.code === 'invalid_type') {
     if (issue.input === null || issue.input === undefined) {
       return translate('zod.generic.required', [
