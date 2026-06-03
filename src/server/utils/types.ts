@@ -13,6 +13,10 @@ export type ID = number;
  */
 export const t = (v: string) => v;
 
+/** Accept omitted JSON fields and normalize to null for the database. */
+export const optionalNull = <T extends z.ZodType>(schema: T) =>
+  schema.nullish().transform((v) => v ?? null);
+
 export const safeStringRefine = z
   .string()
   .refine(
@@ -28,49 +32,50 @@ export const MtuSchema = z
   .min(1024, { message: t('zod.mtu') })
   .max(9000, { message: t('zod.mtu') });
 
-export const JcSchema = z.number().min(1).max(128).nullable();
+export const JcSchema = optionalNull(z.number().min(1).max(128));
 
-export const JminSchema = z.number().max(1279).nullable();
+export const JminSchema = optionalNull(z.number().max(1279));
 
-export const JmaxSchema = z.number().max(1280).nullable();
+export const JmaxSchema = optionalNull(z.number().max(1280));
 
-export const SSchema = z.number().max(1132).nullable();
+export const SSchema = optionalNull(z.number().max(1132));
 
 const H_MIN = 5;
 const H_MAX = 2 ** 31 - 1;
 
-export const HSchema = z
-  .string()
-  .transform((v) => v.replace(/\s+/g, ''))
-  .refine(
-    (v) => {
-      if (!v) return false;
+export const HSchema = optionalNull(
+  z
+    .string()
+    .transform((v) => v.replace(/\s+/g, ''))
+    .refine(
+      (v) => {
+        if (!v) return false;
 
-      if (!/^\d+(-\d+)?$/.test(v)) return false;
+        if (!/^\d+(-\d+)?$/.test(v)) return false;
 
-      if (!v.includes('-')) {
-        const num = Number(v);
-        return num >= H_MIN && num <= H_MAX;
+        if (!v.includes('-')) {
+          const num = Number(v);
+          return num >= H_MIN && num <= H_MAX;
+        }
+
+        const [min, max] = v.split('-').map(Number);
+        return min && max && min >= H_MIN && max <= H_MAX && min <= max;
+
+        return false;
+      },
+      {
+        message: t('zod.generic.validNumberRange'),
       }
+    )
+    .transform((v) => {
+      if (!v.includes('-')) return `${Number(v)}`;
 
       const [min, max] = v.split('-').map(Number);
-      return min && max && min >= H_MIN && max <= H_MAX && min <= max;
+      return min === max ? `${min}` : `${min}-${max}`;
+    })
+);
 
-      return false;
-    },
-    {
-      message: t('zod.generic.validNumberRange'),
-    }
-  )
-  .transform((v) => {
-    if (!v.includes('-')) return `${Number(v)}`;
-
-    const [min, max] = v.split('-').map(Number);
-    return min === max ? `${min}` : `${min}-${max}`;
-  })
-  .nullable();
-
-export const ISchema = z.string().nullable();
+export const ISchema = optionalNull(z.string());
 
 export const PortSchema = z
   .number({ message: t('zod.port') })
@@ -167,6 +172,53 @@ export const schemaForType =
     return arg;
   };
 
+type TranslateFn = (key: string, params?: unknown[]) => string;
+
+function zodFieldLabel(issue: z.core.$ZodIssue, translate: TranslateFn): string {
+  if (issue.message.startsWith('zod.')) {
+    return translate(issue.message);
+  }
+  return issue.path.join('.') || 'field';
+}
+
+function formatZodIssue(issue: z.core.$ZodIssue, translate: TranslateFn): string {
+  if (issue.code === 'invalid_type') {
+    if (issue.input === null || issue.input === undefined) {
+      return translate('zod.generic.required', [
+        zodFieldLabel(issue, translate),
+      ]);
+    }
+
+    const label = zodFieldLabel(issue, translate);
+    switch (issue.expected) {
+      case 'string':
+        return translate('zod.generic.validString', [label]);
+      case 'boolean':
+        return translate('zod.generic.validBoolean', [label]);
+      case 'number':
+        return translate('zod.generic.validNumber', [label]);
+      case 'array':
+        return translate('zod.generic.validArray', [label]);
+    }
+  }
+
+  if (issue.code === 'too_small' && issue.message.startsWith('zod.')) {
+    const label = translate(issue.message);
+    switch (issue.origin) {
+      case 'string':
+        return translate('zod.generic.stringMin', [label, issue.minimum]);
+      case 'number':
+        return translate('zod.generic.numberMin', [label, issue.minimum]);
+    }
+  }
+
+  if (issue.message.startsWith('zod.')) {
+    return translate(issue.message);
+  }
+
+  return issue.message;
+}
+
 export function validateZod<T>(
   schema: ZodSchema<T>,
   event: H3Event<EventHandlerRequest>
@@ -177,74 +229,12 @@ export function validateZod<T>(
     } catch (error) {
       let message = 'Unexpected Error';
       if (error instanceof z.ZodError) {
-        const t = await useTranslation(event);
+        const translate = await useTranslation(event);
 
         message = error.issues
-          .map((v) => {
-            let m = v.message;
-
-            if (t) {
-              let newMessage = null;
-              if (v.message.startsWith('zod.')) {
-                switch (v.code) {
-                  case 'too_small':
-                    switch (v.origin) {
-                      case 'string':
-                        newMessage = t('zod.generic.stringMin', [
-                          t(v.message),
-                          v.minimum,
-                        ]);
-                        break;
-                      case 'number':
-                        newMessage = t('zod.generic.numberMin', [
-                          t(v.message),
-                          v.minimum,
-                        ]);
-                        break;
-                    }
-                    break;
-                  case 'invalid_type': {
-                    if (v.input === null || v.input === undefined) {
-                      newMessage = t('zod.generic.required', [
-                        v.path.join('.'),
-                      ]);
-                    } else {
-                      switch (v.expected) {
-                        case 'string':
-                          newMessage = t('zod.generic.validString', [
-                            t(v.message),
-                          ]);
-                          break;
-                        case 'boolean':
-                          newMessage = t('zod.generic.validBoolean', [
-                            t(v.message),
-                          ]);
-                          break;
-                        case 'number':
-                          newMessage = t('zod.generic.validNumber', [
-                            t(v.message),
-                          ]);
-                          break;
-                        case 'array':
-                          newMessage = t('zod.generic.validArray', [
-                            t(v.message),
-                          ]);
-                          break;
-                      }
-                    }
-                    break;
-                  }
-                }
-              }
-              if (newMessage) {
-                m = newMessage;
-              } else {
-                m = t(v.message);
-              }
-            }
-
-            return m;
-          })
+          .map((issue) =>
+            translate ? formatZodIssue(issue, translate) : issue.message
+          )
           .join('; ');
       }
       throw new Error(message);

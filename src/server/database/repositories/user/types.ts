@@ -43,12 +43,13 @@ const name = z
   .min(1, 'zod.user.name')
   .pipe(safeStringRefine);
 
-const email = z
-  .string({ message: t('zod.user.email') })
-  .min(5, t('zod.user.email'))
-  .email({ message: t('zod.user.emailInvalid') })
-  .pipe(safeStringRefine)
-  .nullable();
+const email = optionalNull(
+  z
+    .string({ message: t('zod.user.email') })
+    .min(5, t('zod.user.email'))
+    .email({ message: t('zod.user.emailInvalid') })
+    .pipe(safeStringRefine)
+);
 
 export const UserUpdateSchema = z.object({
   name: name,
