@@ -29,11 +29,12 @@ const name = z
   .pipe(safeStringRefine);
 
 // TODO?: validate iso string
-const expiresAt = z
-  .string({ message: t('zod.client.expiresAt') })
-  .min(1, t('zod.client.expiresAt'))
-  .pipe(safeStringRefine)
-  .nullable();
+const expiresAt = optionalNull(
+  z
+    .string({ message: t('zod.client.expiresAt') })
+    .min(1, t('zod.client.expiresAt'))
+    .pipe(safeStringRefine)
+);
 
 const address4 = z
   .string({ message: t('zod.client.address4') })
@@ -51,11 +52,12 @@ const serverAllowedIps = z.array(AddressSchema, {
   message: t('zod.client.serverAllowedIps'),
 });
 
-const trafficLimitBytes = z
-  .number({ message: t('zod.client.trafficLimitBytes') })
-  .int()
-  .positive()
-  .nullable();
+const trafficLimitBytes = optionalNull(
+  z
+    .number({ message: t('zod.client.trafficLimitBytes') })
+    .int()
+    .positive()
+);
 
 export const ClientCreateSchema = z.object({
   name: name,
@@ -82,9 +84,9 @@ export const ClientUpdateSchema = schemaForType<UpdateClientType>()(
     postUp: HookSchema,
     preDown: HookSchema,
     postDown: HookSchema,
-    allowedIps: AllowedIpsSchema.nullable(),
+    allowedIps: optionalNull(AllowedIpsSchema),
     serverAllowedIps: serverAllowedIps,
-    firewallIps: FirewallIpsSchema.nullable(),
+    firewallIps: optionalNull(FirewallIpsSchema),
     mtu: MtuSchema,
     jC: JcSchema,
     jMin: JminSchema,
@@ -95,8 +97,8 @@ export const ClientUpdateSchema = schemaForType<UpdateClientType>()(
     i4: ISchema,
     i5: ISchema,
     persistentKeepalive: PersistentKeepaliveSchema,
-    serverEndpoint: AddressSchema.nullable(),
-    dns: DnsSchema.nullable(),
+    serverEndpoint: optionalNull(AddressSchema),
+    dns: optionalNull(DnsSchema),
     trafficLimitBytes: trafficLimitBytes,
   })
 );
