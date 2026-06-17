@@ -205,9 +205,25 @@ Endpoint = ${userConfig.host}:${userConfig.port}`;
   },
 
   dump: async (infName: string) => {
-    const rawDump = await exec(`${wgExecutable} show ${infName} dump`, {
-      log: false,
-    });
+    let rawDump: string;
+    try {
+      rawDump = await exec(`${wgExecutable} show ${infName} dump`, {
+        log: false,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (
+        message.includes('No such device') ||
+        message.includes('Unable to access interface')
+      ) {
+        return [];
+      }
+      throw error;
+    }
+
+    if (!rawDump.trim()) {
+      return [];
+    }
 
     type wgDumpLine = [
       string,

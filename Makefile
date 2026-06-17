@@ -17,9 +17,8 @@ help: ## Show this help
 
 # --- Production (docker-compose.yml) ---
 
-up: ## Pull image and start in background
-	$(COMPOSE_CMD) pull $(SERVICE)
-	$(COMPOSE_CMD) up -d
+up: ## Build local image and start in background
+	$(COMPOSE_CMD) up -d --build
 
 down: ## Stop and remove containers (keeps volumes)
 	$(COMPOSE_CMD) down
@@ -49,8 +48,8 @@ rebuild: ## Rebuild image without cache and start
 	$(COMPOSE_CMD) build --no-cache $(SERVICE)
 	$(COMPOSE_CMD) up -d
 
-pull: ## Pull image from Docker Hub (imzami/wg:latest)
-	$(COMPOSE_CMD) pull $(SERVICE)
+pull: ## No-op for local-only compose (use make build or make up)
+	@echo "Local compose uses image wg:local — run 'make build' or 'make up' instead of pull."
 
 shell: ## Open shell in running container
 	$(COMPOSE_CMD) exec $(SERVICE) sh

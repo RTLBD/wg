@@ -31,7 +31,19 @@ export default defineSetupEventHandler('migrate', async ({ event }) => {
       })
     ),
   });
-  const res = await schema.safeParseAsync(JSON.parse(file));
+  const res = await schema.safeParseAsync(
+    (() => {
+      try {
+        return JSON.parse(file);
+      } catch {
+        throw createError({
+          statusCode: 400,
+          statusMessage:
+            'Invalid config file. Upload a wg0.json export (JSON), not a SQLite database.',
+        });
+      }
+    })()
+  );
   if (!res.success) {
     throw new Error('Invalid Config');
   }

@@ -15,6 +15,7 @@
     "format:check": "prettier . --check",
     "typecheck": "nuxt typecheck",
     "check:all": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm build",
+    "check:docker": "pnpm test:unit && pnpm typecheck && pnpm lint && pnpm format:check",
     "db:generate": "drizzle-kit generate",
     "db:validate": "tsx scripts/validate-database.ts",
     "cli:build": "node cli/build.js",

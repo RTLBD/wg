@@ -17,12 +17,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - wg
     restart: unless-stopped
 
   wg:
     build: .
-    image: imzami/wg:latest
-    pull_policy: build
+    image: wg:local
+    pull_policy: never
     container_name: wg
     depends_on:
       postgres:

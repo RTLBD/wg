@@ -14,8 +14,7 @@ services:
   test:
     build:
       dockerfile: ./Dockerfile.dev
-    command: >-
-      sh -c "pnpm test:unit && pnpm typecheck && pnpm lint && pnpm format:check"
+    command: check:docker
     depends_on:
       postgres:
         condition: service_healthy

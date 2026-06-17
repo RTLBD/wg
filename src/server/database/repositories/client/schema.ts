@@ -1,5 +1,6 @@
 import { sql, relations } from 'drizzle-orm';
 import {
+  bigint,
   boolean,
   integer,
   jsonb,
@@ -54,9 +55,13 @@ export const client = pgTable('clients_table', {
   i5: text(),
   dns: jsonb().$type<string[]>(),
   serverEndpoint: text('server_endpoint'),
-  trafficLimitBytes: integer('traffic_limit_bytes'),
-  trafficUsedBytes: integer('traffic_used_bytes').default(0).notNull(),
-  trafficWgSnapshotBytes: integer('traffic_wg_snapshot_bytes')
+  trafficLimitBytes: bigint('traffic_limit_bytes', { mode: 'number' }),
+  trafficUsedBytes: bigint('traffic_used_bytes', { mode: 'number' })
+    .default(0)
+    .notNull(),
+  trafficWgSnapshotBytes: bigint('traffic_wg_snapshot_bytes', {
+    mode: 'number',
+  })
     .default(0)
     .notNull(),
   enabled: boolean().notNull(),
