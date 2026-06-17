@@ -2,7 +2,7 @@ import { eq, sql } from 'drizzle-orm';
 import { TOTP } from 'otpauth';
 import { user } from './schema';
 import type { UserType } from './types';
-import type { DBType } from '#db/sqlite';
+import type { DBType } from '#db/postgres';
 
 type LoginResult =
   | {
@@ -21,15 +21,15 @@ type LoginResult =
 
 function createPreparedStatement(db: DBType) {
   return {
-    findAll: db.query.user.findMany().prepare(),
+    findAll: db.query.user.findMany().prepare('user_findAll'),
     findById: db.query.user
       .findFirst({ where: eq(user.id, sql.placeholder('id')) })
-      .prepare(),
+      .prepare('user_findById'),
     findByUsername: db.query.user
       .findFirst({
         where: eq(user.username, sql.placeholder('username')),
       })
-      .prepare(),
+      .prepare('user_findByUsername'),
     update: db
       .update(user)
       .set({
@@ -37,7 +37,7 @@ function createPreparedStatement(db: DBType) {
         email: sql.placeholder('email') as never as string,
       })
       .where(eq(user.id, sql.placeholder('id')))
-      .prepare(),
+      .prepare('user_update'),
     updateKey: db
       .update(user)
       .set({
@@ -45,7 +45,7 @@ function createPreparedStatement(db: DBType) {
         totpVerified: false,
       })
       .where(eq(user.id, sql.placeholder('id')))
-      .prepare(),
+      .prepare('user_updateKey'),
   };
 }
 

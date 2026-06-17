@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
-import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 import { wgInterface } from '../../schema';
 
-export const hooks = sqliteTable('hooks_table', {
+export const hooks = pgTable('hooks_table', {
   /** same as `wgInterface.name` */
   id: text()
     .primaryKey()
@@ -15,11 +15,9 @@ export const hooks = sqliteTable('hooks_table', {
   postUp: text('post_up').notNull(),
   preDown: text('pre_down').notNull(),
   postDown: text('post_down').notNull(),
-  createdAt: text('created_at')
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'string' })
     .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`),
-  updatedAt: text('updated_at')
-    .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`)
-    .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+    .defaultNow()
+    .$onUpdate(() => sql`now()`),
 });

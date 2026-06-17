@@ -40,6 +40,14 @@ export const WG_ENV = {
   WG_EXECUTABLE: await detectAwg(),
 };
 
+export const DB_ENV = {
+  /** PostgreSQL connection string */
+  DATABASE_URL: assertEnv('DATABASE_URL'),
+  /** Legacy SQLite file path for automatic upgrade imports */
+  LEGACY_SQLITE_PATH:
+    process.env.LEGACY_SQLITE_PATH ?? '/etc/wireguard/wg-easy.db',
+};
+
 export const WG_INITIAL_ENV = {
   ENABLED: process.env.INIT_ENABLED === 'true',
   USERNAME: process.env.INIT_USERNAME,

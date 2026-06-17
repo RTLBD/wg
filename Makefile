@@ -10,7 +10,7 @@ IMAGE ?= wg:latest
 COMPOSE_CMD = $(COMPOSE) -f $(COMPOSE_FILE)
 COMPOSE_DEV = $(COMPOSE) -f $(COMPOSE_DEV_FILE)
 
-.PHONY: help up down restart logs logs-f ps build rebuild pull stop start shell exec dev dev-down dev-logs cli clean prune image image-multiarch
+.PHONY: help up down restart logs logs-f ps build rebuild pull stop start shell exec dev dev-down dev-logs cli test-docker clean prune image image-multiarch
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -71,6 +71,9 @@ dev-logs: ## Follow dev logs
 
 cli: ## Run CLI in dev container
 	$(COMPOSE_DEV) run --build --rm -it $(SERVICE) cli:dev
+
+test-docker: ## Run unit tests, typecheck, and lint in Docker
+	$(COMPOSE) -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from test test
 
 # --- Image (without compose) ---
 

@@ -2,7 +2,7 @@
  * Changing the Database Provider
  * This design allows for easy swapping of different database implementations.
  */
-import { connect, type DBServiceType } from '#db/sqlite';
+import { connect, type DBServiceType } from '#db/postgres';
 
 const nullObject = new Proxy(
   {},

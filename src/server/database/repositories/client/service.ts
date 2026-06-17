@@ -6,7 +6,7 @@ import type {
   ClientCreateType,
   UpdateClientType,
 } from './types';
-import type { DBType } from '#db/sqlite';
+import type { DBType } from '#db/postgres';
 import { wgInterface, userConfig } from '#db/schema';
 
 function createPreparedStatement(db: DBType) {
@@ -17,7 +17,7 @@ function createPreparedStatement(db: DBType) {
           oneTimeLink: true,
         },
       })
-      .prepare(),
+      .prepare('client_findAll'),
     findAllPublic: db.query.client
       .findMany({
         with: {
@@ -28,10 +28,10 @@ function createPreparedStatement(db: DBType) {
           preSharedKey: false,
         },
       })
-      .prepare(),
+      .prepare('client_findAllPublic'),
     findById: db.query.client
       .findFirst({ where: eq(client.id, sql.placeholder('id')) })
-      .prepare(),
+      .prepare('client_findById'),
     findByUserId: db.query.client
       .findMany({
         where: eq(client.userId, sql.placeholder('userId')),
@@ -41,7 +41,7 @@ function createPreparedStatement(db: DBType) {
           preSharedKey: false,
         },
       })
-      .prepare(),
+      .prepare('client_findByUserId'),
     findAllPublicFiltered: db.query.client
       .findMany({
         where: or(
@@ -57,7 +57,7 @@ function createPreparedStatement(db: DBType) {
           preSharedKey: false,
         },
       })
-      .prepare(),
+      .prepare('client_findAllPublicFiltered'),
     findByUserIdFiltered: db.query.client
       .findMany({
         where: and(
@@ -74,16 +74,16 @@ function createPreparedStatement(db: DBType) {
           preSharedKey: false,
         },
       })
-      .prepare(),
+      .prepare('client_findByUserIdFiltered'),
     toggle: db
       .update(client)
       .set({ enabled: sql.placeholder('enabled') as never as boolean })
       .where(eq(client.id, sql.placeholder('id')))
-      .prepare(),
+      .prepare('client_toggle'),
     delete: db
       .delete(client)
       .where(eq(client.id, sql.placeholder('id')))
-      .prepare(),
+      .prepare('client_delete'),
     updateTrafficStats: db
       .update(client)
       .set({
@@ -95,7 +95,7 @@ function createPreparedStatement(db: DBType) {
         ) as never as number,
       })
       .where(eq(client.id, sql.placeholder('id')))
-      .prepare(),
+      .prepare('client_updateTrafficStats'),
     resetTraffic: db
       .update(client)
       .set({
@@ -103,7 +103,7 @@ function createPreparedStatement(db: DBType) {
         trafficWgSnapshotBytes: 0,
       })
       .where(eq(client.id, sql.placeholder('id')))
-      .prepare(),
+      .prepare('client_resetTraffic'),
   };
 }
 

@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { general } from './schema';
 import type { GeneralUpdateType } from './types';
-import type { DBType } from '#db/sqlite';
+import type { DBType } from '#db/postgres';
 
 function createPreparedStatement(db: DBType) {
   return {
@@ -11,7 +11,7 @@ function createPreparedStatement(db: DBType) {
           setupStep: true,
         },
       })
-      .prepare(),
+      .prepare('general_getSetupStep'),
     getSessionConfig: db.query.general
       .findFirst({
         columns: {
@@ -19,7 +19,7 @@ function createPreparedStatement(db: DBType) {
           sessionTimeout: true,
         },
       })
-      .prepare(),
+      .prepare('general_getSessionConfig'),
     getMetricsConfig: db.query.general
       .findFirst({
         columns: {
@@ -28,7 +28,7 @@ function createPreparedStatement(db: DBType) {
           metricsPassword: true,
         },
       })
-      .prepare(),
+      .prepare('general_getMetricsConfig'),
     getConfig: db.query.general
       .findFirst({
         columns: {
@@ -38,13 +38,13 @@ function createPreparedStatement(db: DBType) {
           metricsPassword: true,
         },
       })
-      .prepare(),
+      .prepare('general_getConfig'),
     updateSetupStep: db
       .update(general)
       .set({
         setupStep: sql.placeholder('setupStep') as never as number,
       })
-      .prepare(),
+      .prepare('general_updateSetupStep'),
   };
 }
 

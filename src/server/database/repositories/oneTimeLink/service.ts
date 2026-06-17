@@ -1,14 +1,14 @@
 import { eq, sql } from 'drizzle-orm';
 import CRC32 from 'crc-32';
 import { oneTimeLink } from './schema';
-import type { DBType } from '#db/sqlite';
+import type { DBType } from '#db/postgres';
 
 function createPreparedStatement(db: DBType) {
   return {
     delete: db
       .delete(oneTimeLink)
       .where(eq(oneTimeLink.id, sql.placeholder('id')))
-      .prepare(),
+      .prepare('otl_delete'),
     create: db
       .insert(oneTimeLink)
       .values({
@@ -22,17 +22,17 @@ function createPreparedStatement(db: DBType) {
           expiresAt: sql.placeholder('expiresAt') as never as string,
         },
       })
-      .prepare(),
+      .prepare('otl_create'),
     erase: db
       .update(oneTimeLink)
       .set({ expiresAt: sql.placeholder('expiresAt') as never as string })
       .where(eq(oneTimeLink.id, sql.placeholder('id')))
-      .prepare(),
+      .prepare('otl_erase'),
     findByOneTimeLink: db.query.oneTimeLink
       .findFirst({
         where: eq(oneTimeLink.oneTimeLink, sql.placeholder('oneTimeLink')),
       })
-      .prepare(),
+      .prepare('otl_findByOneTimeLink'),
   };
 }
 

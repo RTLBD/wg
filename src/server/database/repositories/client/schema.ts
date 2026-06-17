@@ -1,13 +1,21 @@
 import { sql, relations } from 'drizzle-orm';
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import {
+  boolean,
+  integer,
+  jsonb,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 
 import { oneTimeLink, user, wgInterface } from '../../schema';
 
 /** null means use value from userConfig */
 
-export const client = sqliteTable('clients_table', {
-  id: int().primaryKey({ autoIncrement: true }),
-  userId: int('user_id')
+export const client = pgTable('clients_table', {
+  id: serial().primaryKey(),
+  userId: integer('user_id')
     .notNull()
     .references(() => user.id, {
       onDelete: 'restrict',
@@ -30,35 +38,33 @@ export const client = sqliteTable('clients_table', {
   publicKey: text('public_key').notNull(),
   preSharedKey: text('pre_shared_key').notNull(),
   expiresAt: text('expires_at'),
-  allowedIps: text('allowed_ips', { mode: 'json' }).$type<string[]>(),
-  serverAllowedIps: text('server_allowed_ips', { mode: 'json' })
-    .$type<string[]>()
-    .notNull(),
+  allowedIps: jsonb('allowed_ips').$type<string[]>(),
+  serverAllowedIps: jsonb('server_allowed_ips').$type<string[]>().notNull(),
   // Firewall-enforced allowed IPs (null = use allowedIps)
-  firewallIps: text('firewall_ips', { mode: 'json' }).$type<string[] | null>(),
-  persistentKeepalive: int('persistent_keepalive').notNull(),
-  mtu: int().notNull(),
-  jC: int('j_c'),
-  jMin: int('j_min'),
-  jMax: int('j_max'),
+  firewallIps: jsonb('firewall_ips').$type<string[] | null>(),
+  persistentKeepalive: integer('persistent_keepalive').notNull(),
+  mtu: integer().notNull(),
+  jC: integer('j_c'),
+  jMin: integer('j_min'),
+  jMax: integer('j_max'),
   i1: text(),
   i2: text(),
   i3: text(),
   i4: text(),
   i5: text(),
-  dns: text({ mode: 'json' }).$type<string[]>(),
+  dns: jsonb().$type<string[]>(),
   serverEndpoint: text('server_endpoint'),
-  trafficLimitBytes: int('traffic_limit_bytes'),
-  trafficUsedBytes: int('traffic_used_bytes').default(0).notNull(),
-  trafficWgSnapshotBytes: int('traffic_wg_snapshot_bytes').default(0).notNull(),
-  enabled: int({ mode: 'boolean' }).notNull(),
-  createdAt: text('created_at')
+  trafficLimitBytes: integer('traffic_limit_bytes'),
+  trafficUsedBytes: integer('traffic_used_bytes').default(0).notNull(),
+  trafficWgSnapshotBytes: integer('traffic_wg_snapshot_bytes')
+    .default(0)
+    .notNull(),
+  enabled: boolean().notNull(),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'string' })
     .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`),
-  updatedAt: text('updated_at')
-    .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`)
-    .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+    .defaultNow()
+    .$onUpdate(() => sql`now()`),
 });
 
 export const clientsRelations = relations(client, ({ one }) => ({

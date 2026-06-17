@@ -1,18 +1,41 @@
 volumes:
   etc_wireguard:
+  pgdata:
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wg-postgres
+    environment:
+      POSTGRES_USER: wgeasy
+      POSTGRES_PASSWORD: wgeasy
+      POSTGRES_DB: wgeasy
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wgeasy -d wgeasy']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   wg:
+    build: .
     image: imzami/wg:latest
-    pull_policy: always
+    pull_policy: build
     container_name: wg
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       TZ: Asia/Dhaka
       INSECURE: "true"
+      DATABASE_URL: postgresql://wgeasy:wgeasy@postgres:5432/wgeasy
     #  Optional:
     #  - PORT=51821
     #  - HOST=0.0.0.0
     #  - INSECURE=false
+    #  - LEGACY_SQLITE_PATH=/etc/wireguard/wg-easy.db
     networks:
       wg:
         ipv4_address: 10.42.42.42

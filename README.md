@@ -50,6 +50,8 @@ pnpm build
 
 ### Run with Docker Compose (recommended)
 
+The stack includes **PostgreSQL** for application data and a WireGuard config volume. Set `DATABASE_URL` is configured automatically in `docker-compose.yml`.
+
 ```shell
 docker compose pull
 docker compose up -d
@@ -60,6 +62,9 @@ make up
 - **WireGuard UDP:** `51820`
 - **Web UI:** `http://<host>:51821`
 - **Config volume:** `etc_wireguard` → `/etc/wireguard`
+- **Database:** `postgres` service (`pgdata` volume)
+
+Upgrading from SQLite-backed releases: place the legacy `wg-easy.db` on the WireGuard volume; it is imported automatically on first startup. See [docs/content/advanced/migrate/from-sqlite-to-postgresql.md](docs/content/advanced/migrate/from-sqlite-to-postgresql.md).
 
 Stop:
 

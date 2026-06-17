@@ -1,23 +1,27 @@
 import { sql } from 'drizzle-orm';
-import { sqliteTable, text, int } from 'drizzle-orm/sqlite-core';
+import {
+  boolean,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 
-export const general = sqliteTable('general_table', {
-  id: int().primaryKey({ autoIncrement: false }).default(1),
+export const general = pgTable('general_table', {
+  id: integer().primaryKey().default(1),
 
-  setupStep: int('setup_step').notNull(),
+  setupStep: integer('setup_step').notNull(),
 
   sessionPassword: text('session_password').notNull(),
-  sessionTimeout: int('session_timeout').notNull(),
+  sessionTimeout: integer('session_timeout').notNull(),
 
-  metricsPrometheus: int('metrics_prometheus', { mode: 'boolean' }).notNull(),
-  metricsJson: int('metrics_json', { mode: 'boolean' }).notNull(),
+  metricsPrometheus: boolean('metrics_prometheus').notNull(),
+  metricsJson: boolean('metrics_json').notNull(),
   metricsPassword: text('metrics_password'),
 
-  createdAt: text('created_at')
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'string' })
     .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`),
-  updatedAt: text('updated_at')
-    .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`)
-    .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+    .defaultNow()
+    .$onUpdate(() => sql`now()`),
 });

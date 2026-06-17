@@ -36,11 +36,13 @@ export default defineCommand({
     const hash = await hashPassword(password);
 
     const user = await db.transaction(async (tx) => {
-      const user = await tx
+      const rows = await tx
         .select()
         .from(schema.user)
         .where(eq(schema.user.id, 1))
-        .get();
+        .limit(1);
+
+      const user = rows[0];
 
       if (!user) {
         consola.error('Admin user not found');

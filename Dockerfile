@@ -34,9 +34,9 @@ RUN apk add linux-headers build-base go git && \
     make && \
     sed -i 's|\[\[ $proto == -4 \]\] && cmd sysctl -q net\.ipv4\.conf\.all\.src_valid_mark=1|[[ $proto == -4 ]] \&\& [[ $(sysctl -n net.ipv4.conf.all.src_valid_mark) != 1 ]] \&\& cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1|' ./wg-quick/linux.bash
 
-FROM base AS build-libsql
+FROM base AS build-native-deps
 WORKDIR /app
-RUN npm install --no-save --omit=dev libsql
+RUN npm install --no-save --omit=dev pg @libsql/client
 
 # Copy build result to a new image.
 # This saves a lot of disk space.
@@ -49,8 +49,8 @@ HEALTHCHECK --interval=1m --timeout=5s --retries=3 CMD /usr/bin/timeout 5s /bin/
 COPY --from=build /app/.output /app
 # Copy migrations
 COPY --from=build /app/server/database/migrations /app/server/database/migrations
-# libsql (https://github.com/nitrojs/nitro/issues/3328)
-COPY --from=build-libsql /app/node_modules /app/server/node_modules
+# Native database drivers (pg, legacy SQLite import)
+COPY --from=build-native-deps /app/node_modules /app/server/node_modules
 
 # cli
 COPY --from=build /app/cli/cli.sh /usr/local/bin/cli
@@ -101,6 +101,7 @@ ENV HOST=0.0.0.0
 ENV INSECURE=false
 ENV INIT_ENABLED=false
 ENV DISABLE_IPV6=false
+# DATABASE_URL must be provided at runtime (see docker-compose.yml)
 
 LABEL org.opencontainers.image.title=wg
 LABEL org.opencontainers.image.source=https://github.com/RTLBD/wg
