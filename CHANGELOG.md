@@ -21,6 +21,8 @@ This file previously contained the full upstream [wg-easy/wg-easy](https://githu
 ### Added
 
 - Per-client **lifetime traffic limits** (auto-disable when exceeded, reset usage in UI)
+- **Unique client names** (case-insensitive) with **Generate** random name in the new-client dialog
+- **Paginated client list** (UI and `GET /api/client` with `page`, `pageSize`, `sort`, `filter`)
 - Rebrand to **wg** (UI, CLI banner, locales, Docker image/service name)
 - **Makefile** helpers for Docker Compose (`make up`, `down`, `logs`, etc.)
 - **Multi-arch** Docker images (`linux/amd64`, `linux/arm64`)
@@ -31,6 +33,8 @@ This file previously contained the full upstream [wg-easy/wg-easy](https://githu
 
 ### Changed
 
+- Default IPv4 CIDR for new installs: **`10.8.0.0/20`** (~4,000 clients; was `/24`)
+- Application bootstrap runs before the startup banner; quieter WireGuard key generation in logs
 - Removed legacy **`Dockerfile.prebuilt`** and **`scripts/build-fork-image.sh`** (upstream image overlay); aligned **`Dockerfile.dev`** with production base (tzdata, iptables symlinks, no `dpkg`)
 - Repository canonical URL: **https://github.com/RTLBD/wg**
 - GitHub release/update checks point at `RTLBD/wg`
@@ -41,6 +45,7 @@ This file previously contained the full upstream [wg-easy/wg-easy](https://githu
 
 ### Fixed
 
+- Duplicate client name returns **409 Conflict** instead of an unhandled server error
 - Critical image CVEs (Alpine **busybox**, npm **brace-expansion**, **ip-address** in bundled npm)
 - Memory leaks: WireGuard cron timer, `clientsPersist` pruning, 2FA QR `objectURL` revoke
 - ESLint `no-dynamic-delete` in client chart persist logic

@@ -18,6 +18,9 @@
         <ClientsList
           v-if="clientsStore.clients && clientsStore.clients.length > 0"
         />
+        <ClientsPagination
+          v-if="clientsStore.clients && clientsStore.total > clientsStore.pageSize"
+        />
       </div>
       <ClientsEmpty
         v-if="clientsStore.clients && clientsStore.clients.length === 0"

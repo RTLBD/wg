@@ -12,6 +12,7 @@ const clientsStore = useClientsStore();
 
 function toggleSort() {
   globalStore.sortClient = !globalStore.sortClient;
+  clientsStore.page = 1;
   clientsStore.refresh().catch(console.error);
 }
 </script>

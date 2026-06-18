@@ -96,8 +96,9 @@ services:
       - INIT_HOST=wg-easy.$example.com$
       - INIT_PORT=51820
       - INIT_DNS=10.42.42.43,fdcc:ad94:bacf:61a3::2b
-      - INIT_IPV4_CIDR=10.8.0.0/24
-      - INIT_IPV6_CIDR=fd42:42:42::/64
+      - INIT_IPV4_CIDR=10.8.0.0/20
+      - INIT_IPV6_CIDR=fdcc:ad94:bacf:61a4::cafe:0/112
+      - INIT_ALLOWED_IPS=0.0.0.0/0,::/0
     ...
 
 networks:

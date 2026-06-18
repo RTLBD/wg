@@ -1,15 +1,18 @@
 # wg
 
-WireGuard VPN with a web admin UI — fork of [wg-easy/wg-easy](https://github.com/wg-easy/wg-easy) with **per-client lifetime traffic limits**.
+WireGuard VPN with a web admin UI — fork of [wg-easy/wg-easy](https://github.com/wg-easy/wg-easy) with **traffic limits**, **paginated client management**, and a larger default address pool.
 
 **Repository:** [https://github.com/RTLBD/wg](https://github.com/RTLBD/wg)
 
-## Fork additions
+## Fork additions (RTLBD/wg)
 
 - Set a **traffic limit (GB)** per client in create/edit UI
 - Server tracks cumulative Rx+Tx usage (persisted across wg counter resets)
 - Client is **auto-disabled** when the limit is reached
 - **Reset traffic usage** button on client edit page
+- **Unique client names** (case-insensitive) with optional **Generate** random name in the new-client dialog
+- **Paginated client list** (25 per page) with server-side search and sort
+- Default IPv4 pool **`10.8.0.0/20`** (~4,000 clients) on new installs
 
 Upstream docs (reference): [https://wg-easy.github.io/wg-easy/latest](https://wg-easy.github.io/wg-easy/latest)
 

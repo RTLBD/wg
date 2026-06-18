@@ -41,3 +41,30 @@ Most Linux distributions include iptables by default. If you're running in a min
 4. Server enforces these rules automatically
 
 See [Edit Client → Firewall Allowed IPs](./clients.md#firewall-allowed-ips) for detailed configuration syntax and examples.
+
+## IPv4 / IPv6 CIDR
+
+The interface CIDR defines the address pool used for client IPs.
+
+| Default (new installs) | Approx. client capacity |
+| ---------------------- | ----------------------- |
+| IPv4 `10.8.0.0/20`     | ~4,000                  |
+| IPv6 `fdcc:ad94:bacf:61a4::cafe:0/112` | ~65,000        |
+
+/// warning | Changing CIDR
+
+Use **Change CIDR** only when you need more addresses or a different subnet. Expanding the IPv4 range (for example from `/24` to `/20`) reassigns client IPs and requires clients to download updated configuration files.
+///
+
+**Expand the pool (example):**
+
+```shell
+curl -u admin:YOUR_PASSWORD -X POST https://vpn.example.com:51821/api/admin/interface/cidr \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "ipv4Cidr": "10.8.0.0/20",
+    "ipv6Cidr": "fdcc:ad94:bacf:61a4::cafe:0/112"
+  }'
+```
+
+Or use **Admin Panel → Interface → Change CIDR** in the web UI.

@@ -14,9 +14,9 @@ These will only be used during the first start of the container. After that, the
 | `INIT_HOST`        | `vpn.example.com`            | Host clients will connect to                              | 1     |
 | `INIT_PORT`        | `51820`                      | Port clients will connect to and wireguard will listen on | 1     |
 | `INIT_DNS`         | `1.1.1.1,8.8.8.8`            | Sets global dns setting                                   | 2     |
-| `INIT_IPV4_CIDR`   | `10.8.0.0/24`                | Sets IPv4 cidr                                            | 3     |
-| `INIT_IPV6_CIDR`   | `2001:0DB8::/32`             | Sets IPv6 cidr                                            | 3     |
-| `INIT_ALLOWED_IPS` | `10.8.0.0/24,2001:0DB8::/32` | Sets global Allowed IPs                                   | 4     |
+| `INIT_IPV4_CIDR`   | `10.8.0.0/20`                     | Sets IPv4 cidr (~4k clients with default `/20`) | 3     |
+| `INIT_IPV6_CIDR`   | `fdcc:ad94:bacf:61a4::cafe:0/112` | Sets IPv6 cidr                                    | 3     |
+| `INIT_ALLOWED_IPS` | `0.0.0.0/0,::/0`                  | Sets global Allowed IPs (full tunnel)             | 4     |
 
 /// warning | Variables have to be used together
 
