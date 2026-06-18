@@ -1,14 +1,37 @@
 import { defineStore } from 'pinia';
 import { sha256 } from 'js-sha256';
-import type { TypedInternalResponse } from 'nitropack/types';
 
-type WGClientReturn = TypedInternalResponse<
-  '/api/client',
-  unknown,
-  'get'
->[number];
+type ClientOneTimeLink = {
+  oneTimeLink: string;
+  expiresAt: string;
+};
 
-export type LocalClient = WGClientReturn & {
+type ClientListItem = {
+  id: number;
+  name: string;
+  enabled: boolean;
+  createdAt: string;
+  expiresAt: string | null;
+  ipv4Address: string;
+  ipv6Address: string;
+  publicKey: string;
+  latestHandshakeAt: string | null;
+  endpoint: string | null;
+  transferRx: number | null;
+  transferTx: number | null;
+  trafficLimitBytes: number | null;
+  trafficUsedBytes: number;
+  oneTimeLink: ClientOneTimeLink | null;
+};
+
+type ClientListResponse = {
+  clients: ClientListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+export type LocalClient = ClientListItem & {
   avatar?: string;
   transferMax?: number;
 } & Omit<ClientPersist, 'transferRxPrevious' | 'transferTxPrevious'>;
@@ -26,24 +49,46 @@ export type ClientPersist = {
   hoverTx?: unknown;
 };
 
+const DEFAULT_PAGE_SIZE = 25;
+
 export const useClientsStore = defineStore('Clients', () => {
   const globalStore = useGlobalStore();
   const clients = ref<null | LocalClient[]>(null);
   const clientsPersist = ref<Record<string, ClientPersist>>({});
+  const filter = ref<string | undefined>(undefined);
+  const page = ref(1);
+  const pageSize = ref(DEFAULT_PAGE_SIZE);
+  const total = ref(0);
 
-  const searchParams = ref({
-    filter: undefined as string | undefined,
-  });
+  const listParams = computed(() => ({
+    filter: filter.value,
+    page: page.value,
+    pageSize: pageSize.value,
+    sort: globalStore.sortClient ? ('asc' as const) : ('desc' as const),
+  }));
 
-  const { data: _clients, refresh: _refresh } = useFetch('/api/client', {
-    method: 'get',
-    params: searchParams,
-  });
+  const totalPages = computed(() =>
+    Math.max(1, Math.ceil(total.value / pageSize.value))
+  );
 
-  // TODO: rewrite
+  const { data: _clients, refresh: _refresh } = useFetch<ClientListResponse>(
+    '/api/client',
+    {
+      method: 'get',
+      params: listParams,
+    }
+  );
+
   async function refresh({ updateCharts = false } = {}) {
     await _refresh();
-    let transformedClients = _clients.value?.map((client) => {
+
+    const payload = _clients.value;
+
+    total.value = payload?.total ?? 0;
+    page.value = payload?.page ?? page.value;
+    pageSize.value = payload?.pageSize ?? pageSize.value;
+
+    const transformedClients = payload?.clients?.map((client) => {
       let avatar = undefined;
       if (client.name.includes('@') && client.name.includes('.')) {
         avatar = `https://gravatar.com/avatar/${sha256(client.name.toLowerCase().trim())}.jpg`;
@@ -62,15 +107,7 @@ export const useClientsStore = defineStore('Clients', () => {
         };
       }
 
-      // We know that this can't be undefined
       const clientPersist = clientsPersist.value[client.id]!;
-
-      // Debug
-      /* client.transferRx =
-        clientPersist.transferRxPrevious + Math.random() * 1000;
-      client.transferTx =
-        clientPersist.transferTxPrevious + Math.random() * 1000;
-      client.latestHandshakeAt = new Date().toISOString(); */
 
       clientPersist.transferRxCurrent =
         (client.transferRx ?? 0) - clientPersist.transferRxPrevious;
@@ -126,14 +163,7 @@ export const useClientsStore = defineStore('Clients', () => {
       };
     });
 
-    // TODO: move sort to backend
     if (transformedClients !== undefined) {
-      transformedClients = sortByProperty(
-        transformedClients,
-        'name',
-        globalStore.sortClient
-      );
-
       const activeIds = new Set(transformedClients.map((c) => String(c.id)));
       clientsPersist.value = Object.fromEntries(
         Object.entries(clientsPersist.value).filter(([id]) => activeIds.has(id))
@@ -143,10 +173,31 @@ export const useClientsStore = defineStore('Clients', () => {
     clients.value = transformedClients ?? null;
   }
 
-  function setSearchQuery(filter: string) {
+  function setSearchQuery(value: string) {
     clients.value = null;
-    searchParams.value.filter = filter || undefined;
+    filter.value = value || undefined;
+    page.value = 1;
   }
 
-  return { clients, clientsPersist, refresh, _clients, setSearchQuery };
+  function setPage(nextPage: number) {
+    const clamped = Math.min(Math.max(1, nextPage), totalPages.value);
+    if (clamped === page.value) {
+      return;
+    }
+    clients.value = null;
+    page.value = clamped;
+  }
+
+  return {
+    clients,
+    clientsPersist,
+    refresh,
+    _clients,
+    setSearchQuery,
+    setPage,
+    page,
+    pageSize,
+    total,
+    totalPages,
+  };
 });

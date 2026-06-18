@@ -4,14 +4,14 @@ export default definePermissionEventHandler(
   'clients',
   'custom',
   async ({ event, user }) => {
-    const { filter } = await getValidatedQuery(
+    const query = await getValidatedQuery(
       event,
       validateZod(ClientQuerySchema, event)
     );
 
     if (user.role === roles.ADMIN) {
-      return WireGuard.getAllClients(filter);
+      return WireGuard.listClients(query);
     }
-    return WireGuard.getClientsForUser(user.id, filter);
+    return WireGuard.listClients(query, user.id);
   }
 );

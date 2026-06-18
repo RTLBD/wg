@@ -6,6 +6,32 @@ hide:
 
 Here are some frequently asked questions or errors about `wg-easy`. If you have a question that is not answered here, please feel free to open a discussion on GitHub.
 
+## How many clients can I create?
+
+The limit depends on the **IPv4 CIDR** configured for the WireGuard interface. The server assigns one IPv4 address per client from that pool (plus IPv6 when enabled).
+
+| IPv4 CIDR     | Approx. clients |
+| ------------- | --------------- |
+| `10.8.0.0/24` | ~250            |
+| `10.8.0.0/20` | ~4,000          |
+| `10.8.0.0/16` | ~65,000         |
+
+New installs in this fork default to **`10.8.0.0/20`**. To use a larger pool on an existing server, expand the CIDR under **Admin Panel → Interface → Change CIDR**. Clients must download updated configuration files after IP reassignment.
+
+See [Admin Panel → IPv4 / IPv6 CIDR](./guides/admin.md#ipv4--ipv6-cidr).
+
+## Error: IPv4 Address Pool exhausted
+
+You have used every assignable address in the current IPv4 CIDR. Either delete unused clients or **expand the CIDR** (for example from `/24` to `/20`). After expanding, redistribute updated configs to all clients.
+
+## Error: Client name already taken
+
+Client names must be unique (case-insensitive). Choose a different name or use **Generate** in the new-client dialog. The API returns HTTP **409** with `zod.client.nameTaken` for duplicate names.
+
+## Why does the client list show pages instead of all clients?
+
+Large deployments load clients in pages (25 per page by default) to keep the UI responsive. Use search to find a client by name or IP, or use the paginated [GET /api/client](./advanced/api.md#get-apiclient) endpoint for automation.
+
 ## How do I restrict client access to specific networks or servers?
 
 Use the **Per-Client Firewall** feature to enforce server-side restrictions on what each client can access.

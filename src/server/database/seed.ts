@@ -31,7 +31,7 @@ export async function seedInitialData(db: DBType) {
     port: 51820,
     privateKey: '---default---',
     publicKey: '---default---',
-    ipv4Cidr: '10.8.0.0/24',
+    ipv4Cidr: '10.8.0.0/20',
     ipv6Cidr: 'fdcc:ad94:bacf:61a4::cafe:0/112',
     mtu: 1420,
     enabled: true,

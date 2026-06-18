@@ -1,11 +1,11 @@
 <template>
   <div
-    :class="`absolute bottom-0 left-0 right-0 z-0 h-6 ${globalStore.uiChartType === 'line' && 'line-chart'}`"
+    :class="`absolute right-0 bottom-0 left-0 z-0 h-6 ${globalStore.uiChartType === 'line' && 'line-chart'}`"
   >
     <BaseChart :options="chartOptionsTX" :series="client.transferTxSeries" />
   </div>
   <div
-    :class="`absolute left-0 right-0 top-0 z-0 h-6 ${globalStore.uiChartType === 'line' && 'line-chart'}`"
+    :class="`absolute top-0 right-0 left-0 z-0 h-6 ${globalStore.uiChartType === 'line' && 'line-chart'}`"
   >
     <BaseChart
       :options="chartOptionsRX"

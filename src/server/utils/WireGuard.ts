@@ -5,6 +5,7 @@ import {
   isTrafficLimitExceeded,
 } from './trafficLimit';
 import type { InterfaceType } from '#db/repositories/interface/types';
+import type { ClientListParams } from '#db/repositories/client/types';
 
 const WG_DEBUG = createDebug('WireGuard');
 
@@ -84,15 +85,10 @@ class WireGuard {
     WG_DEBUG('Config synced successfully.');
   }
 
-  async getClientsForUser(userId: ID, filter?: string) {
+  async #enrichWithWireGuardStatus<T extends { publicKey: string }>(
+    dbClients: T[]
+  ) {
     const wgInterface = await Database.interfaces.get();
-
-    let dbClients;
-    if (filter?.trim()) {
-      dbClients = await Database.clients.getForUserFiltered(userId, filter);
-    } else {
-      dbClients = await Database.clients.getForUser(userId);
-    }
 
     const clients = dbClients.map((client) => ({
       ...client,
@@ -102,7 +98,6 @@ class WireGuard {
       transferTx: null as number | null,
     }));
 
-    // Loop WireGuard status
     const dump = await wg.dump(wgInterface.name);
     dump.forEach(
       ({ publicKey, latestHandshakeAt, endpoint, transferRx, transferTx }) => {
@@ -119,6 +114,32 @@ class WireGuard {
     );
 
     return clients;
+  }
+
+  async listClients(params: ClientListParams, userId?: ID) {
+    const page = userId
+      ? await Database.clients.getForUserPaginated(userId, params)
+      : await Database.clients.getAllPublicPaginated(params);
+
+    const clients = await this.#enrichWithWireGuardStatus(page.clients);
+
+    return {
+      clients,
+      total: page.total,
+      page: page.page,
+      pageSize: page.pageSize,
+    };
+  }
+
+  async getClientsForUser(userId: ID, filter?: string) {
+    let dbClients;
+    if (filter?.trim()) {
+      dbClients = await Database.clients.getForUserFiltered(userId, filter);
+    } else {
+      dbClients = await Database.clients.getForUser(userId);
+    }
+
+    return this.#enrichWithWireGuardStatus(dbClients);
   }
 
   async dumpByPublicKey(publicKey: string) {
@@ -133,8 +154,6 @@ class WireGuard {
   }
 
   async getAllClients(filter?: string) {
-    const wgInterface = await Database.interfaces.get();
-
     let dbClients;
     if (filter?.trim()) {
       dbClients = await Database.clients.getAllPublicFiltered(filter);
@@ -142,31 +161,7 @@ class WireGuard {
       dbClients = await Database.clients.getAllPublic();
     }
 
-    const clients = dbClients.map((client) => ({
-      ...client,
-      latestHandshakeAt: null as Date | null,
-      endpoint: null as string | null,
-      transferRx: null as number | null,
-      transferTx: null as number | null,
-    }));
-
-    // Loop WireGuard status
-    const dump = await wg.dump(wgInterface.name);
-    dump.forEach(
-      ({ publicKey, latestHandshakeAt, endpoint, transferRx, transferTx }) => {
-        const client = clients.find((client) => client.publicKey === publicKey);
-        if (!client) {
-          return;
-        }
-
-        client.latestHandshakeAt = latestHandshakeAt;
-        client.endpoint = endpoint;
-        client.transferRx = transferRx;
-        client.transferTx = transferTx;
-      }
-    );
-
-    return clients;
+    return this.#enrichWithWireGuardStatus(dbClients);
   }
 
   async getClientConfiguration({ clientId }: { clientId: ID }) {

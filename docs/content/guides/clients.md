@@ -2,9 +2,11 @@
 title: Edit Client
 ---
 
+For creating clients, the client list, search, sort, and pagination, see [Manage Clients](./manage-clients.md).
+
 ## General
 
-- **Name**: The name of the client.
+- **Name**: The name of the client. Names must be unique (case-insensitive). When creating a client, use **Generate** on the new-client dialog for a random name.
 - **Enabled**: Whether the client can connect to the VPN.
 - **Expire Date**: The date the client will be disabled.
 

@@ -1,14 +1,38 @@
-import { eq, sql, or, like, and } from 'drizzle-orm';
+import { eq, sql, or, like, and, asc, desc, count } from 'drizzle-orm';
 import { createError } from 'h3';
 import { containsCidr, parseCidr } from 'cidr-tools';
 import { client } from './schema';
 import type {
   ClientCreateFromExistingType,
   ClientCreateType,
+  ClientListParams,
   UpdateClientType,
 } from './types';
 import type { DBType } from '#db/postgres';
 import { wgInterface, userConfig } from '#db/schema';
+
+function mapClientRow<T extends { createdAt: string; updatedAt: string }>(
+  row: T
+) {
+  return {
+    ...row,
+    createdAt: new Date(row.createdAt),
+    updatedAt: new Date(row.updatedAt),
+  };
+}
+
+function buildClientFilter(filter?: string) {
+  if (!filter?.trim()) {
+    return undefined;
+  }
+
+  const filterPattern = `%${filter.toLowerCase()}%`;
+  return or(
+    like(client.name, filterPattern),
+    like(client.ipv4Address, filterPattern),
+    like(client.ipv6Address, filterPattern)
+  );
+}
 
 function assertClientNameAvailable(
   clients: { id: number; name: string }[],
@@ -199,11 +223,77 @@ export class ClientService {
       filter: filterPattern,
     });
 
-    return result.map((row) => ({
-      ...row,
-      createdAt: new Date(row.createdAt),
-      updatedAt: new Date(row.updatedAt),
-    }));
+    return result.map(mapClientRow);
+  }
+
+  async getAllPublicPaginated({
+    filter,
+    page,
+    pageSize,
+    sort,
+  }: ClientListParams) {
+    const where = buildClientFilter(filter);
+    const offset = (page - 1) * pageSize;
+    const orderBy = sort === 'asc' ? asc(client.name) : desc(client.name);
+
+    const [rows, countRows] = await Promise.all([
+      this.#db.query.client.findMany({
+        where,
+        with: { oneTimeLink: true },
+        columns: {
+          privateKey: false,
+          preSharedKey: false,
+        },
+        limit: pageSize,
+        offset,
+        orderBy,
+      }),
+      this.#db
+        .select({ total: count() })
+        .from(client)
+        .where(where ?? sql`true`),
+    ]);
+
+    return {
+      clients: rows.map(mapClientRow),
+      total: Number(countRows[0]?.total ?? 0),
+      page,
+      pageSize,
+    };
+  }
+
+  async getForUserPaginated(
+    userId: ID,
+    { filter, page, pageSize, sort }: ClientListParams
+  ) {
+    const filterWhere = buildClientFilter(filter);
+    const where = filterWhere
+      ? and(eq(client.userId, userId), filterWhere)
+      : eq(client.userId, userId);
+    const offset = (page - 1) * pageSize;
+    const orderBy = sort === 'asc' ? asc(client.name) : desc(client.name);
+
+    const [rows, countRows] = await Promise.all([
+      this.#db.query.client.findMany({
+        where,
+        with: { oneTimeLink: true },
+        columns: {
+          privateKey: false,
+          preSharedKey: false,
+        },
+        limit: pageSize,
+        offset,
+        orderBy,
+      }),
+      this.#db.select({ total: count() }).from(client).where(where),
+    ]);
+
+    return {
+      clients: rows.map(mapClientRow),
+      total: Number(countRows[0]?.total ?? 0),
+      page,
+      pageSize,
+    };
   }
 
   get(id: ID) {

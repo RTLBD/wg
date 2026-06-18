@@ -1,6 +1,6 @@
 <template>
   <div
-    class="break-all text-sm text-gray-700 md:text-base dark:text-neutral-200"
+    class="text-sm break-all text-gray-700 md:text-base dark:text-neutral-200"
     :title="$t('client.createdOn') + $d(new Date(client.createdAt))"
   >
     {{ client.name }}

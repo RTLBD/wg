@@ -20,7 +20,7 @@
             class="w-full"
           />
           <BaseSecondaryButton type="button" @click="generateName">
-            <span class="whitespace-nowrap text-sm">
+            <span class="text-sm whitespace-nowrap">
               {{ $t('client.generateName') }}
             </span>
           </BaseSecondaryButton>

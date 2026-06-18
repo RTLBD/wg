@@ -48,6 +48,21 @@ const address6 = z
 
 const filter = z.string().optional();
 
+const page = z.coerce
+  .number({ message: t('zod.client.page') })
+  .int()
+  .min(1)
+  .default(1);
+
+const pageSize = z.coerce
+  .number({ message: t('zod.client.pageSize') })
+  .int()
+  .min(1)
+  .max(100)
+  .default(25);
+
+const sort = z.enum(['asc', 'desc']).optional().default('asc');
+
 const serverAllowedIps = z.array(AddressSchema, {
   message: t('zod.client.serverAllowedIps'),
 });
@@ -69,9 +84,24 @@ export type ClientCreateType = z.infer<typeof ClientCreateSchema>;
 
 export const ClientQuerySchema = z.object({
   filter: filter,
+  page: page,
+  pageSize: pageSize,
+  sort: sort,
 });
 
 export type ClientQueryType = z.infer<typeof ClientQuerySchema>;
+
+export type ClientListParams = Pick<
+  ClientQueryType,
+  'filter' | 'page' | 'pageSize' | 'sort'
+>;
+
+export type ClientListResult<T> = {
+  clients: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
 
 export const ClientUpdateSchema = schemaForType<UpdateClientType>()(
   z.object({
