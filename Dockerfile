@@ -4,7 +4,7 @@ ARG ALPINE_EDGE_MAIN=https://dl-cdn.alpinelinux.org/alpine/edge/main
 RUN apk add --no-cache --repository=${ALPINE_EDGE_MAIN} busybox=1.37.0-r31 \
     && npm install --global npm@latest corepack@latest
 
-FROM base AS build
+FROM base AS build-app
 WORKDIR /app
 
 # Install pnpm
@@ -18,6 +18,10 @@ RUN pnpm install
 COPY src ./
 RUN pnpm build
 
+FROM build-app AS test
+ENTRYPOINT ["pnpm", "run"]
+
+FROM build-app AS build
 # Build amneziawg-tools and wireguard-go (patched x/crypto + x/net; Alpine wireguard-go is outdated)
 RUN apk add linux-headers build-base go git && \
     git clone --depth 1 https://github.com/zamibd/amneziawg-tools.git && \

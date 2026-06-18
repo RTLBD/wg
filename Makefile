@@ -3,22 +3,18 @@
 
 COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.yml
-COMPOSE_DEV_FILE ?= docker-compose.dev.yml
 SERVICE ?= wg
-IMAGE ?= wg:latest
+IMAGE ?= imzami/wg:latest
 
 COMPOSE_CMD = $(COMPOSE) -f $(COMPOSE_FILE)
-COMPOSE_DEV = $(COMPOSE) -f $(COMPOSE_DEV_FILE)
 
-.PHONY: help up down restart logs logs-f ps build rebuild pull stop start shell exec dev dev-down dev-logs cli test-docker clean prune image image-multiarch
+.PHONY: help up down restart logs logs-f ps build rebuild pull stop start shell exec cli test-docker clean prune image image-multiarch
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
-# --- Production (docker-compose.yml) ---
-
-up: ## Build local image and start in background
-	$(COMPOSE_CMD) up -d --build
+up: ## Pull image and start in background
+	$(COMPOSE_CMD) pull && $(COMPOSE_CMD) up -d
 
 down: ## Stop and remove containers (keeps volumes)
 	$(COMPOSE_CMD) down
@@ -41,15 +37,15 @@ logs-f: ## Follow container logs
 ps: ## List compose services
 	$(COMPOSE_CMD) ps
 
-build: ## Build image only
-	$(COMPOSE_CMD) build $(SERVICE)
+build: ## Build production image locally
+	docker build -t $(IMAGE) .
 
 rebuild: ## Rebuild image without cache and start
-	$(COMPOSE_CMD) build --no-cache $(SERVICE)
+	docker build --no-cache -t $(IMAGE) .
 	$(COMPOSE_CMD) up -d
 
-pull: ## No-op for local-only compose (use make build or make up)
-	@echo "Local compose uses image wg:local — run 'make build' or 'make up' instead of pull."
+pull: ## Pull latest image from registry
+	$(COMPOSE_CMD) pull
 
 shell: ## Open shell in running container
 	$(COMPOSE_CMD) exec $(SERVICE) sh
@@ -57,33 +53,19 @@ shell: ## Open shell in running container
 exec: ## Run command in container (make exec CMD="wg show")
 	$(COMPOSE_CMD) exec $(SERVICE) $(CMD)
 
-# --- Development (docker-compose.dev.yml) ---
-
-dev: ## Start dev stack with live-mounted source
-	$(COMPOSE_DEV) up $(SERVICE) --build
-
-dev-down: ## Stop dev stack
-	$(COMPOSE_DEV) down
-
-dev-logs: ## Follow dev logs
-	$(COMPOSE_DEV) logs -f $(SERVICE)
-
-cli: ## Run CLI in dev container
-	$(COMPOSE_DEV) run --build --rm -it $(SERVICE) cli:dev
+cli: ## Run CLI in running container (make cli CMD="--help")
+	$(COMPOSE_CMD) exec $(SERVICE) cli $(CMD)
 
 test-docker: ## Run unit tests, typecheck, and lint in Docker
 	$(COMPOSE) -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from test test
-
-# --- Image (without compose) ---
+	$(COMPOSE) -f docker-compose.test.yml down --remove-orphans
 
 image: ## Build Docker image tag locally (host architecture)
 	docker build -t $(IMAGE) .
 
-image-multiarch: ## Build amd64+arm64 and push (set REGISTRY=user/wg)
-	@test -n "$(REGISTRY)" || (echo "Usage: make image-multiarch REGISTRY=docker.io/user/wg" && exit 1)
+image-multiarch: ## Build amd64+arm64 and push (set REGISTRY=docker.io/imzami/wg)
+	@test -n "$(REGISTRY)" || (echo "Usage: make image-multiarch REGISTRY=docker.io/imzami/wg" && exit 1)
 	docker buildx build --platform linux/amd64,linux/arm64 -t $(REGISTRY):latest --push .
-
-# --- Cleanup ---
 
 clean: down ## Stop stack and remove unused compose resources
 	$(COMPOSE_CMD) down --remove-orphans

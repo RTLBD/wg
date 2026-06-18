@@ -7,9 +7,9 @@ services:
     image: postgres:16-alpine
     container_name: wg-postgres
     environment:
-      POSTGRES_USER: wgeasy
-      POSTGRES_PASSWORD: wgeasy
-      POSTGRES_DB: wgeasy
+      POSTGRES_USER: ${POSTGRES_USER:-wgeasy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-wgeasy}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,22 +22,19 @@ services:
     restart: unless-stopped
 
   wg:
-    build: .
-    image: wg:local
-    pull_policy: never
+    image: imzami/wg:${WG_IMAGE_TAG:-latest}
     container_name: wg
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       TZ: Asia/Dhaka
-      INSECURE: "true"
-      DATABASE_URL: postgresql://wgeasy:wgeasy@postgres:5432/wgeasy
-    #  Optional:
-    #  - PORT=51821
-    #  - HOST=0.0.0.0
-    #  - INSECURE=false
-    #  - LEGACY_SQLITE_PATH=/etc/wireguard/wg-easy.db
+      INSECURE: "false"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-wgeasy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-wgeasy}
+      # Optional:
+      # PORT: "51821"
+      # HOST: 0.0.0.0
+      # LEGACY_SQLITE_PATH: /etc/wireguard/wg-easy.db
     networks:
       wg:
         ipv4_address: 10.42.42.42
