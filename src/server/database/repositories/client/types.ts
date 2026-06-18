@@ -48,7 +48,11 @@ const address6 = z
 
 const filter = z.string().optional();
 
-const page = z.coerce.number({ message: t('zod.client.page') }).int().min(1).default(1);
+const page = z.coerce
+  .number({ message: t('zod.client.page') })
+  .int()
+  .min(1)
+  .default(1);
 
 const pageSize = z.coerce
   .number({ message: t('zod.client.pageSize') })

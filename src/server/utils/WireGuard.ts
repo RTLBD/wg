@@ -132,8 +132,6 @@ class WireGuard {
   }
 
   async getClientsForUser(userId: ID, filter?: string) {
-    const wgInterface = await Database.interfaces.get();
-
     let dbClients;
     if (filter?.trim()) {
       dbClients = await Database.clients.getForUserFiltered(userId, filter);

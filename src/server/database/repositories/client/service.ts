@@ -11,7 +11,9 @@ import type {
 import type { DBType } from '#db/postgres';
 import { wgInterface, userConfig } from '#db/schema';
 
-function mapClientRow<T extends { createdAt: string; updatedAt: string }>(row: T) {
+function mapClientRow<T extends { createdAt: string; updatedAt: string }>(
+  row: T
+) {
   return {
     ...row,
     createdAt: new Date(row.createdAt),

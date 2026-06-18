@@ -88,7 +88,7 @@ export const useClientsStore = defineStore('Clients', () => {
     page.value = payload?.page ?? page.value;
     pageSize.value = payload?.pageSize ?? pageSize.value;
 
-    let transformedClients = payload?.clients?.map((client) => {
+    const transformedClients = payload?.clients?.map((client) => {
       let avatar = undefined;
       if (client.name.includes('@') && client.name.includes('.')) {
         avatar = `https://gravatar.com/avatar/${sha256(client.name.toLowerCase().trim())}.jpg`;

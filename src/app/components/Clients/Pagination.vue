@@ -20,7 +20,9 @@
       >
         {{ $t('client.paginationPrevious') }}
       </BaseSecondaryButton>
-      <span class="min-w-24 text-center text-sm text-gray-600 dark:text-neutral-300">
+      <span
+        class="min-w-24 text-center text-sm text-gray-600 dark:text-neutral-300"
+      >
         {{
           $t('client.paginationPage', {
             page: clientsStore.page,

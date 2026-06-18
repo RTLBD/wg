@@ -1,4 +1,4 @@
-import type { NitroFetchRequest, NitroFetchOptions } from 'nitropack/types';
+import type { NitroFetchOptions } from 'nitropack/types';
 import { FetchError } from 'ofetch';
 
 type RevertFn = (success: boolean, data: unknown) => Promise<void>;
@@ -9,9 +9,9 @@ type SubmitOpts = {
   noSuccessToast?: boolean;
 };
 
-export function useSubmit<R extends NitroFetchRequest>(
-  url: R,
-  options: NitroFetchOptions<R>,
+export function useSubmit(
+  url: string,
+  options: NitroFetchOptions<string>,
   opts: SubmitOpts
 ) {
   const toast = useToast();
@@ -21,7 +21,7 @@ export function useSubmit<R extends NitroFetchRequest>(
     try {
       const res = await $fetch(url, {
         ...options,
-        body: data as NitroFetchOptions<R>['body'],
+        body: data as NitroFetchOptions<string>['body'],
       });
 
       if (!opts.noSuccessToast) {
