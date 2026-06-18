@@ -3,13 +3,13 @@ import { parseCidr } from 'cidr-tools';
 import { wgInterface } from './schema';
 import type { InterfaceCidrUpdateType, InterfaceUpdateType } from './types';
 import { client as clientSchema } from '#db/schema';
-import type { DBType } from '#db/sqlite';
+import type { DBType } from '#db/postgres';
 
 function createPreparedStatement(db: DBType) {
   return {
     get: db.query.wgInterface
       .findFirst({ where: eq(wgInterface.name, sql.placeholder('interface')) })
-      .prepare(),
+      .prepare('interface_get'),
     updateKeyPair: db
       .update(wgInterface)
       .set({
@@ -17,14 +17,14 @@ function createPreparedStatement(db: DBType) {
         publicKey: sql.placeholder('publicKey') as never as string,
       })
       .where(eq(wgInterface.name, sql.placeholder('interface')))
-      .prepare(),
+      .prepare('interface_updateKeyPair'),
     setFirewallEnabled: db
       .update(wgInterface)
       .set({
         firewallEnabled: sql.placeholder('firewallEnabled') as never as boolean,
       })
       .where(eq(wgInterface.name, sql.placeholder('interface')))
-      .prepare(),
+      .prepare('interface_setFirewallEnabled'),
   };
 }
 

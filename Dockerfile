@@ -4,7 +4,7 @@ ARG ALPINE_EDGE_MAIN=https://dl-cdn.alpinelinux.org/alpine/edge/main
 RUN apk add --no-cache --repository=${ALPINE_EDGE_MAIN} busybox=1.37.0-r31 \
     && npm install --global npm@latest corepack@latest
 
-FROM base AS build
+FROM base AS build-app
 WORKDIR /app
 
 # Install pnpm
@@ -18,6 +18,10 @@ RUN pnpm install
 COPY src ./
 RUN pnpm build
 
+FROM build-app AS test
+ENTRYPOINT ["pnpm", "run"]
+
+FROM build-app AS build
 # Build amneziawg-tools and wireguard-go (patched x/crypto + x/net; Alpine wireguard-go is outdated)
 RUN apk add linux-headers build-base go git && \
     git clone --depth 1 https://github.com/zamibd/amneziawg-tools.git && \
@@ -34,9 +38,9 @@ RUN apk add linux-headers build-base go git && \
     make && \
     sed -i 's|\[\[ $proto == -4 \]\] && cmd sysctl -q net\.ipv4\.conf\.all\.src_valid_mark=1|[[ $proto == -4 ]] \&\& [[ $(sysctl -n net.ipv4.conf.all.src_valid_mark) != 1 ]] \&\& cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1|' ./wg-quick/linux.bash
 
-FROM base AS build-libsql
+FROM base AS build-native-deps
 WORKDIR /app
-RUN npm install --no-save --omit=dev libsql
+RUN npm install --no-save --omit=dev pg @libsql/client
 
 # Copy build result to a new image.
 # This saves a lot of disk space.
@@ -49,8 +53,8 @@ HEALTHCHECK --interval=1m --timeout=5s --retries=3 CMD /usr/bin/timeout 5s /bin/
 COPY --from=build /app/.output /app
 # Copy migrations
 COPY --from=build /app/server/database/migrations /app/server/database/migrations
-# libsql (https://github.com/nitrojs/nitro/issues/3328)
-COPY --from=build-libsql /app/node_modules /app/server/node_modules
+# Native database drivers (pg, legacy SQLite import)
+COPY --from=build-native-deps /app/node_modules /app/server/node_modules
 
 # cli
 COPY --from=build /app/cli/cli.sh /usr/local/bin/cli
@@ -95,12 +99,12 @@ RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # Set Environment
 ENV TZ=Asia/Dhaka
-ENV DEBUG=Server,WireGuard,Database,CMD,Firewall
 ENV PORT=51821
 ENV HOST=0.0.0.0
 ENV INSECURE=false
 ENV INIT_ENABLED=false
 ENV DISABLE_IPV6=false
+# DATABASE_URL must be provided at runtime (see docker-compose.yml)
 
 LABEL org.opencontainers.image.title=wg
 LABEL org.opencontainers.image.source=https://github.com/RTLBD/wg

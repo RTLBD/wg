@@ -1,11 +1,11 @@
 import { sql, relations } from 'drizzle-orm';
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 import { client } from '../../schema';
 
-export const oneTimeLink = sqliteTable('one_time_links_table', {
+export const oneTimeLink = pgTable('one_time_links_table', {
   /** same as `client.id` */
-  id: int()
+  id: integer()
     .primaryKey()
     .references(() => client.id, {
       onDelete: 'cascade',
@@ -13,13 +13,11 @@ export const oneTimeLink = sqliteTable('one_time_links_table', {
     }),
   oneTimeLink: text('one_time_link').notNull().unique(),
   expiresAt: text('expires_at').notNull(),
-  createdAt: text('created_at')
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'string' })
     .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`),
-  updatedAt: text('updated_at')
-    .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`)
-    .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+    .defaultNow()
+    .$onUpdate(() => sql`now()`),
 });
 
 export const oneTimeLinksRelations = relations(oneTimeLink, ({ one }) => ({

@@ -1,25 +1,30 @@
 import { sql, relations } from 'drizzle-orm';
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import {
+  boolean,
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 
 import { client } from '../../schema';
 
-export const user = sqliteTable('users_table', {
-  id: int().primaryKey({ autoIncrement: true }),
+export const user = pgTable('users_table', {
+  id: serial().primaryKey(),
   username: text().notNull().unique(),
   password: text().notNull(),
   email: text(),
   name: text().notNull(),
-  role: int().$type<Role>().notNull(),
+  role: integer().$type<Role>().notNull(),
   totpKey: text('totp_key'),
-  totpVerified: int('totp_verified', { mode: 'boolean' }).notNull(),
-  enabled: int({ mode: 'boolean' }).notNull(),
-  createdAt: text('created_at')
+  totpVerified: boolean('totp_verified').notNull(),
+  enabled: boolean().notNull(),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'string' })
     .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`),
-  updatedAt: text('updated_at')
-    .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`)
-    .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+    .defaultNow()
+    .$onUpdate(() => sql`now()`),
 });
 
 export const usersRelations = relations(user, ({ many }) => ({

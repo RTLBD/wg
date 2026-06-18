@@ -1,9 +1,10 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { migrate as drizzleMigrate } from 'drizzle-orm/libsql/migrator';
-import { createClient } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { migrate as drizzleMigrate } from 'drizzle-orm/node-postgres/migrator';
 import { createDebug } from 'obug';
 import { eq } from 'drizzle-orm';
+import pg from 'pg';
 
+import { DB_ENV, WG_ENV, WG_INITIAL_ENV } from '../utils/config';
 import * as schema from './schema';
 import { ClientService } from './repositories/client/service';
 import { GeneralService } from './repositories/general/service';
@@ -12,14 +13,20 @@ import { UserConfigService } from './repositories/userConfig/service';
 import { InterfaceService } from './repositories/interface/service';
 import { HooksService } from './repositories/hooks/service';
 import { OneTimeLinkService } from './repositories/oneTimeLink/service';
+import { hasGeneralConfig, seedInitialData } from './seed';
+import { migrateFromSqlite } from './migrateFromSqlite';
 
 const DB_DEBUG = createDebug('Database');
 
-const client = createClient({ url: 'file:/etc/wireguard/wg-easy.db' });
-const db = drizzle({ client, schema });
+const pool = new pg.Pool({
+  connectionString: DB_ENV.DATABASE_URL,
+});
+
+const db = drizzle(pool, { schema });
 
 export async function connect() {
   await migrate();
+  await initializeData();
   const dbService = new DBService(db);
 
   if (WG_INITIAL_ENV.ENABLED) {
@@ -67,7 +74,22 @@ async function migrate() {
   } catch (e) {
     if (e instanceof Error) {
       DB_DEBUG('Failed to migrate database:', e.message);
+      throw e;
     }
+    throw e;
+  }
+}
+
+async function initializeData() {
+  const imported = await migrateFromSqlite(db);
+  if (imported) {
+    DB_DEBUG('Loaded data from legacy SQLite database');
+    return;
+  }
+
+  if (!(await hasGeneralConfig(db))) {
+    DB_DEBUG('Seeding initial database data...');
+    await seedInitialData(db);
   }
 }
 
@@ -121,7 +143,6 @@ async function initialSetup(db: DBServiceType) {
 }
 
 async function disableIpv6(db: DBType) {
-  // This should match the initial value migration
   const postUpMatch =
     ' ip6tables -t nat -A POSTROUTING -s {{ipv6Cidr}} -o {{device}} -j MASQUERADE; ip6tables -A INPUT -p udp -m udp --dport {{port}} -j ACCEPT; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -A FORWARD -o wg0 -j ACCEPT;';
   const postDownMatch =
@@ -163,4 +184,8 @@ async function disableIpv6(db: DBType) {
       DB_DEBUG('IPv6 Post Down hooks already disabled, skipping...');
     }
   });
+}
+
+export async function closeDatabase() {
+  await pool.end();
 }

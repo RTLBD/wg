@@ -161,6 +161,7 @@ export default defineNuxtConfig({
     },
     externals: {
       traceInclude: [fileURLToPath(new URL('./cli/index.ts', import.meta.url))],
+      external: ['pg', 'pg-native', '@libsql/client'],
     },
   },
   alias: {

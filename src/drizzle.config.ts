@@ -3,8 +3,10 @@ import { defineConfig } from 'drizzle-kit';
 export default defineConfig({
   out: './server/database/migrations',
   schema: './server/database/schema.ts',
-  dialect: 'sqlite',
+  dialect: 'postgresql',
   dbCredentials: {
-    url: 'file:./wg-easy.db',
+    url:
+      process.env.DATABASE_URL ??
+      'postgresql://wgeasy:wgeasy@localhost:5432/wgeasy',
   },
 });

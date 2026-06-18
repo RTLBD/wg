@@ -4,7 +4,7 @@ hide:
     - navigation
 ---
 
-This page explains how to get started with `wg-easy`. The guide uses Docker Compose as a reference. In our examples, we mount the named volume `etc_wireguard` to `/etc/wireguard` inside the container.
+This page explains how to get started with `wg-easy`. The guide uses Docker Compose as a reference. In our examples, we mount the named volume `etc_wireguard` to `/etc/wireguard` inside the container and run PostgreSQL as a separate service for application data.
 
 ## Preliminary Steps
 

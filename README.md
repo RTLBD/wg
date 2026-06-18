@@ -43,14 +43,17 @@ Add these **repository secrets** in GitHub → Settings → Secrets → Actions:
 ### Build
 
 ```shell
-docker build -t wg .
+docker build -t imzami/wg:latest .
 # or
-pnpm build
+make build
 ```
 
 ### Run with Docker Compose (recommended)
 
+The stack uses **PostgreSQL** and pulls **`imzami/wg`** from Docker Hub.
+
 ```shell
+cp .env.example .env   # set POSTGRES_PASSWORD
 docker compose pull
 docker compose up -d
 # or
@@ -58,8 +61,11 @@ make up
 ```
 
 - **WireGuard UDP:** `51820`
-- **Web UI:** `http://<host>:51821`
+- **Web UI:** `https://<host>:51821` (or HTTP only if you set `INSECURE=true` behind a reverse proxy)
 - **Config volume:** `etc_wireguard` → `/etc/wireguard`
+- **Database:** `postgres` service (`pgdata` volume)
+
+Upgrading from SQLite-backed releases: place the legacy `wg-easy.db` on the WireGuard volume; it is imported automatically on first startup. See [docs/content/advanced/migrate/from-sqlite-to-postgresql.md](docs/content/advanced/migrate/from-sqlite-to-postgresql.md).
 
 Stop:
 
@@ -77,7 +83,7 @@ Pull the image (use a release tag instead of `latest` if you prefer, e.g. `imzam
 docker pull imzami/wg:latest
 ```
 
-Run the container:
+Run the container (requires an external PostgreSQL instance and `DATABASE_URL`):
 
 ```shell
 docker run -d \
@@ -94,25 +100,14 @@ docker run -d \
   -p 51820:51820/udp \
   -p 51821:51821/tcp \
   -e TZ=Asia/Dhaka \
-  -e INSECURE=true \
+  -e DATABASE_URL=postgresql://user:password@postgres-host:5432/wgeasy \
   --restart unless-stopped \
   imzami/wg:latest
 ```
 
-- **Web UI:** http://localhost:51821  
-- `INSECURE=true` allows the UI over HTTP (omit or set `INSECURE=false` in production behind HTTPS)
+- **Web UI:** serve over HTTPS (reverse proxy) or set `-e INSECURE=true` only for plain HTTP access
 
-Replace `imzami/wg:latest` with your own image if you build locally (`docker build -t wg .` → use `wg:latest`).
-
-## Development
-
-```shell
-make dev      # Docker: live-mounted src, pnpm dev (Dockerfile.dev)
-pnpm dev      # same via package.json → docker compose dev
-pnpm cli:dev  # CLI in dev container
-```
-
-Production builds use the root `Dockerfile` only (not `Dockerfile.dev`).
+To build and push your own image: `docker build -t imzami/wg:latest .` then `docker push imzami/wg:latest`, or use **Actions → Publish Docker image**.
 
 ## License
 

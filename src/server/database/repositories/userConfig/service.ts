@@ -2,13 +2,13 @@ import { eq, sql } from 'drizzle-orm';
 import { userConfig } from './schema';
 import type { UserConfigUpdateType } from './types';
 import { wgInterface } from '#db/schema';
-import type { DBType } from '#db/sqlite';
+import type { DBType } from '#db/postgres';
 
 function createPreparedStatement(db: DBType) {
   return {
     get: db.query.userConfig
       .findFirst({ where: eq(userConfig.id, sql.placeholder('interface')) })
-      .prepare(),
+      .prepare('userConfig_get'),
   };
 }
 

@@ -1,10 +1,13 @@
-import { createClient } from '@libsql/client';
-import { drizzle } from 'drizzle-orm/libsql';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import pg from 'pg';
 
 import * as schema from '../server/database/schema';
+import { DB_ENV } from '../server/utils/config';
 
-//const client = createClient({ url: 'file:../data/wg-easy.db' });
-const client = createClient({ url: 'file:/etc/wireguard/wg-easy.db' });
-export const db = drizzle({ client, schema });
+const pool = new pg.Pool({
+  connectionString: DB_ENV.DATABASE_URL,
+});
+
+export const db = drizzle(pool, { schema });
 
 export { schema };

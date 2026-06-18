@@ -4,12 +4,15 @@ title: Optional Configuration
 
 You can set these environment variables to configure the container. They are not required, but can be useful in some cases.
 
-| Env            | Default   | Example     | Description                        |
-| -------------- | --------- | ----------- | ---------------------------------- |
-| `PORT`         | `51821`   | `6789`      | TCP port for Web UI.               |
-| `HOST`         | `0.0.0.0` | `localhost` | IP address web UI binds to.        |
-| `INSECURE`     | `false`   | `true`      | If access over http is allowed     |
-| `DISABLE_IPV6` | `false`   | `true`      | If IPv6 support should be disabled |
+| Env                  | Default                     | Example                                           | Description                                       |
+| -------------------- | --------------------------- | ------------------------------------------------- | ------------------------------------------------- |
+| `DATABASE_URL`       | _(required)_                | `postgresql://wgeasy:wgeasy@postgres:5432/wgeasy` | PostgreSQL connection string for application data |
+| `LEGACY_SQLITE_PATH` | `/etc/wireguard/wg-easy.db` | `/etc/wireguard/wg-easy.db`                       | Legacy SQLite file imported on first startup      |
+| `PORT`               | `51821`                     | `6789`                                            | TCP port for Web UI.                              |
+| `HOST`               | `0.0.0.0`                   | `localhost`                                       | IP address web UI binds to.                       |
+| `INSECURE`           | `false`                     | `true`                                            | If access over http is allowed                    |
+| `DEBUG`              | _(unset)_                   | `Server,WireGuard,Database,CMD,Firewall`          | Comma-separated debug namespaces (`obug`)         |
+| `DISABLE_IPV6`       | `false`                     | `true`                                            | If IPv6 support should be disabled                |
 
 /// note | IPv6 Caveats
 

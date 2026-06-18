@@ -20,6 +20,7 @@ To automatically install & run `wg-easy`, simply run:
 docker run -d \
   --net wg \
   -e INSECURE=true \
+  -e DATABASE_URL=postgresql://wgeasy:wgeasy@postgres:5432/wgeasy \
   --name wg-easy \
   --ip6 fdcc:ad94:bacf:61a3::2a \
   --ip 10.42.42.42 \
