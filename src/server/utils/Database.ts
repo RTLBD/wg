@@ -20,20 +20,33 @@ const nullObject = new Proxy(
 // eslint-disable-next-line import/no-mutable-exports
 let provider = nullObject as never as DBServiceType;
 
-export const databaseReady = connect()
-  .then((db) => {
-    provider = db;
-    return WireGuard.Startup().then(() => db);
-  })
-  .catch((error) => {
-    if (error instanceof Error) {
-      DB_BOOT_DEBUG('Failed to initialize application:', error.message);
-    }
-    throw error;
-  });
+let databaseReadyPromise: Promise<DBServiceType> | undefined;
+
+export function bootstrapApplication(): Promise<DBServiceType> {
+  if (databaseReadyPromise) {
+    return databaseReadyPromise;
+  }
+
+  databaseReadyPromise = connect()
+    .then((db) => {
+      provider = db;
+      return WireGuard.Startup().then(() => {
+        DB_BOOT_DEBUG('Application ready');
+        return db;
+      });
+    })
+    .catch((error) => {
+      if (error instanceof Error) {
+        DB_BOOT_DEBUG('Failed to initialize application:', error.message);
+      }
+      throw error;
+    });
+
+  return databaseReadyPromise;
+}
 
 export async function awaitDatabaseReady() {
-  return databaseReady;
+  return bootstrapApplication();
 }
 
 export default provider;

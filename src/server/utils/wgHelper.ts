@@ -171,17 +171,15 @@ Endpoint = ${userConfig.host}:${userConfig.port}`;
   },
 
   generatePrivateKey: () => {
-    return exec(`${wgExecutable} genkey`);
+    return exec(`${wgExecutable} genkey`, { log: false });
   },
 
   getPublicKey: (privateKey: string) => {
-    return exec(`echo ${privateKey} | ${wgExecutable} pubkey`, {
-      log: `echo ***hidden*** | ${wgExecutable} pubkey`,
-    });
+    return exec(`echo ${privateKey} | ${wgExecutable} pubkey`, { log: false });
   },
 
   generatePreSharedKey: () => {
-    return exec(`${wgExecutable} genpsk`);
+    return exec(`${wgExecutable} genpsk`, { log: false });
   },
 
   up: (infName: string) => {

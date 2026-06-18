@@ -15,6 +15,7 @@ export function useSubmit<R extends NitroFetchRequest>(
   opts: SubmitOpts
 ) {
   const toast = useToast();
+  const { t, te } = useI18n();
 
   return async (data: unknown) => {
     try {
@@ -33,14 +34,18 @@ export function useSubmit<R extends NitroFetchRequest>(
       await opts.revert(true, res);
     } catch (e) {
       if (e instanceof FetchError) {
+        const rawMessage = e.data?.message ?? e.message;
         toast.showToast({
           type: 'error',
-          message: e.data.message,
+          message:
+            typeof rawMessage === 'string' && te(rawMessage)
+              ? t(rawMessage)
+              : rawMessage,
         });
       } else if (e instanceof Error) {
         toast.showToast({
           type: 'error',
-          message: e.message,
+          message: te(e.message) ? t(e.message) : e.message,
         });
       } else {
         console.error(e);

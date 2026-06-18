@@ -86,6 +86,7 @@
     "created": "Client created",
     "new": "New Client",
     "name": "Name",
+    "generateName": "Generate",
     "expireDate": "Expire Date",
     "expireDateDesc": "Date the client will be disabled. Blank for permanent",
     "delete": "Delete",
@@ -214,6 +215,7 @@
     "client": {
       "id": "Client ID",
       "name": "Name",
+      "nameTaken": "A client with this name already exists",
       "expiresAt": "Expires At",
       "address4": "IPv4 Address",
       "address6": "IPv6 Address",

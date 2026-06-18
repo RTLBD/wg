@@ -8,7 +8,23 @@
     </template>
     <template #description>
       <div class="flex flex-col">
-        <FormTextField id="name" v-model="name" :label="$t('client.name')" />
+        <FormLabel for="name">
+          {{ $t('client.name') }}
+        </FormLabel>
+        <div class="flex gap-1">
+          <BaseInput
+            id="name"
+            v-model.trim="name"
+            name="name"
+            type="text"
+            class="w-full"
+          />
+          <BaseSecondaryButton type="button" @click="generateName">
+            <span class="whitespace-nowrap text-sm">
+              {{ $t('client.generateName') }}
+            </span>
+          </BaseSecondaryButton>
+        </div>
         <FormDateField
           id="expiresAt"
           v-model="expiresAt"
@@ -36,6 +52,8 @@
 </template>
 
 <script lang="ts" setup>
+import { generateRandomAlphanumeric } from '#shared/utils/random';
+
 const name = ref<string>('');
 const expiresAt = ref<string | null>(null);
 const trafficLimitGb = ref<string>('');
@@ -44,6 +62,22 @@ const clientsStore = useClientsStore();
 const { t } = useI18n();
 
 defineProps<{ triggerClass?: string }>();
+
+function generateName() {
+  const existingNames = new Set(
+    (clientsStore.clients ?? []).map((c) => c.name.toLowerCase())
+  );
+
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const candidate = generateRandomAlphanumeric(6);
+    if (!existingNames.has(candidate.toLowerCase())) {
+      name.value = candidate;
+      return;
+    }
+  }
+
+  name.value = generateRandomAlphanumeric(6);
+}
 
 function createClient() {
   const limitGb = trafficLimitGb.value.trim();
