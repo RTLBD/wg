@@ -99,7 +99,6 @@ RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # Set Environment
 ENV TZ=Asia/Dhaka
-ENV DEBUG=Server,WireGuard,Database,CMD,Firewall
 ENV PORT=51821
 ENV HOST=0.0.0.0
 ENV INSECURE=false

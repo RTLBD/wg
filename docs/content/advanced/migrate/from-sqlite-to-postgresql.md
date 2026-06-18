@@ -32,9 +32,9 @@ New installations only need PostgreSQL and `DATABASE_URL`. No SQLite file is cre
 
 ## Environment variables
 
-| Env | Default | Description |
-| --- | ------- | ----------- |
-| `DATABASE_URL` | *(required)* | PostgreSQL connection string |
+| Env                  | Default                     | Description                              |
+| -------------------- | --------------------------- | ---------------------------------------- |
+| `DATABASE_URL`       | _(required)_                | PostgreSQL connection string             |
 | `LEGACY_SQLITE_PATH` | `/etc/wireguard/wg-easy.db` | Path checked for automatic SQLite import |
 
 ## Manual rollback
