@@ -1,4 +1,5 @@
 import { eq, sql, or, like, and } from 'drizzle-orm';
+import { createError } from 'h3';
 import { containsCidr, parseCidr } from 'cidr-tools';
 import { client } from './schema';
 import type {
@@ -8,6 +9,27 @@ import type {
 } from './types';
 import type { DBType } from '#db/postgres';
 import { wgInterface, userConfig } from '#db/schema';
+
+function assertClientNameAvailable(
+  clients: { id: number; name: string }[],
+  name: string,
+  excludeId?: number
+) {
+  const normalized = name.toLowerCase();
+  const taken = clients.some(
+    (c) =>
+      c.name.toLowerCase() === normalized &&
+      (excludeId === undefined || c.id !== excludeId)
+  );
+
+  if (taken) {
+    throw createError({
+      statusCode: 409,
+      statusMessage: 'Conflict',
+      message: 'zod.client.nameTaken',
+    });
+  }
+}
 
 function createPreparedStatement(db: DBType) {
   return {
@@ -215,6 +237,8 @@ export class ClientService {
         throw new Error('WireGuard interface configuration not found');
       }
 
+      assertClientNameAvailable(clients, name);
+
       const ipv4Cidr = parseCidr(clientInterface.ipv4Cidr);
       const ipv4Address = nextIP(4, ipv4Cidr, clients);
       const ipv6Cidr = parseCidr(clientInterface.ipv6Cidr);
@@ -280,6 +304,12 @@ export class ClientService {
 
   update(id: ID, data: UpdateClientType) {
     return this.#db.transaction(async (tx) => {
+      const clients = await tx.query.client
+        .findMany({ columns: { id: true, name: true } })
+        .execute();
+
+      assertClientNameAvailable(clients, data.name, id);
+
       const clientInterface = await tx.query.wgInterface
         .findFirst({
           where: eq(wgInterface.name, 'wg0'),
@@ -313,31 +343,39 @@ export class ClientService {
   }: ClientCreateFromExistingType) {
     const clientConfig = await Database.userConfigs.get();
 
-    return this.#db
-      .insert(client)
-      .values({
-        name,
-        userId: 1,
-        interfaceId: 'wg0',
-        privateKey,
-        publicKey,
-        preSharedKey,
-        ipv4Address,
-        ipv6Address,
-        mtu: clientConfig.defaultMtu,
-        jC: clientConfig.defaultJC,
-        jMin: clientConfig.defaultJMin,
-        jMax: clientConfig.defaultJMax,
-        i1: clientConfig.defaultI1,
-        i2: clientConfig.defaultI2,
-        i3: clientConfig.defaultI3,
-        i4: clientConfig.defaultI4,
-        allowedIps: clientConfig.defaultAllowedIps,
-        dns: clientConfig.defaultDns,
-        persistentKeepalive: clientConfig.defaultPersistentKeepalive,
-        serverAllowedIps: [],
-        enabled,
-      })
-      .execute();
+    return this.#db.transaction(async (tx) => {
+      const clients = await tx.query.client
+        .findMany({ columns: { id: true, name: true } })
+        .execute();
+
+      assertClientNameAvailable(clients, name);
+
+      return tx
+        .insert(client)
+        .values({
+          name,
+          userId: 1,
+          interfaceId: 'wg0',
+          privateKey,
+          publicKey,
+          preSharedKey,
+          ipv4Address,
+          ipv6Address,
+          mtu: clientConfig.defaultMtu,
+          jC: clientConfig.defaultJC,
+          jMin: clientConfig.defaultJMin,
+          jMax: clientConfig.defaultJMax,
+          i1: clientConfig.defaultI1,
+          i2: clientConfig.defaultI2,
+          i3: clientConfig.defaultI3,
+          i4: clientConfig.defaultI4,
+          allowedIps: clientConfig.defaultAllowedIps,
+          dns: clientConfig.defaultDns,
+          persistentKeepalive: clientConfig.defaultPersistentKeepalive,
+          serverAllowedIps: [],
+          enabled,
+        })
+        .execute();
+    });
   }
 }

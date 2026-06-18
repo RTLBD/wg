@@ -1,4 +1,4 @@
-import { databaseReady } from '../utils/Database';
+import { bootstrapApplication } from '../utils/Database';
 
 export default defineEventHandler(async (event) => {
   if (!getRequestURL(event).pathname.startsWith('/api/')) {
@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    await databaseReady;
+    await bootstrapApplication();
   } catch {
     throw createError({
       statusCode: 503,
