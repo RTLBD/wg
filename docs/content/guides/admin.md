@@ -46,10 +46,10 @@ See [Edit Client → Firewall Allowed IPs](./clients.md#firewall-allowed-ips) fo
 
 The interface CIDR defines the address pool used for client IPs.
 
-| Default (new installs) | Approx. client capacity |
-| ---------------------- | ----------------------- |
-| IPv4 `10.8.0.0/20`     | ~4,000                  |
-| IPv6 `fdcc:ad94:bacf:61a4::cafe:0/112` | ~65,000        |
+| Default (new installs)                 | Approx. client capacity |
+| -------------------------------------- | ----------------------- |
+| IPv4 `10.8.0.0/20`                     | ~4,000                  |
+| IPv6 `fdcc:ad94:bacf:61a4::cafe:0/112` | ~65,000                 |
 
 /// warning | Changing CIDR
 

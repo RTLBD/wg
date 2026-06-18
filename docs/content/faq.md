@@ -10,11 +10,11 @@ Here are some frequently asked questions or errors about `wg-easy`. If you have 
 
 The limit depends on the **IPv4 CIDR** configured for the WireGuard interface. The server assigns one IPv4 address per client from that pool (plus IPv6 when enabled).
 
-| IPv4 CIDR        | Approx. clients |
-| ---------------- | --------------- |
-| `10.8.0.0/24`    | ~250            |
-| `10.8.0.0/20`    | ~4,000          |
-| `10.8.0.0/16`    | ~65,000         |
+| IPv4 CIDR     | Approx. clients |
+| ------------- | --------------- |
+| `10.8.0.0/24` | ~250            |
+| `10.8.0.0/20` | ~4,000          |
+| `10.8.0.0/16` | ~65,000         |
 
 New installs in this fork default to **`10.8.0.0/20`**. To use a larger pool on an existing server, expand the CIDR under **Admin Panel → Interface → Change CIDR**. Clients must download updated configuration files after IP reassignment.
 

@@ -44,21 +44,21 @@ Returns a **paginated** list of clients with live WireGuard stats (handshake, tr
 
 **Query parameters:**
 
-| Parameter  | Default | Description                                      |
-| ---------- | ------- | ------------------------------------------------ |
-| `page`     | `1`     | Page number (1-based)                            |
-| `pageSize` | `25`    | Clients per page (max `100`)                     |
-| `sort`     | `asc`   | Sort by name: `asc` or `desc`                    |
-| `filter`   | _(none)_ | Search name, IPv4, or IPv6 (partial match)    |
+| Parameter  | Default  | Description                                |
+| ---------- | -------- | ------------------------------------------ |
+| `page`     | `1`      | Page number (1-based)                      |
+| `pageSize` | `25`     | Clients per page (max `100`)               |
+| `sort`     | `asc`    | Sort by name: `asc` or `desc`              |
+| `filter`   | _(none)_ | Search name, IPv4, or IPv6 (partial match) |
 
 **Response:**
 
 ```json
 {
-  "clients": [ { "id": 1, "name": "alice", "...": "..." } ],
-  "total": 105,
-  "page": 1,
-  "pageSize": 25
+    "clients": [{ "id": 1, "name": "alice", "...": "..." }],
+    "total": 105,
+    "page": 1,
+    "pageSize": 25
 }
 ```
 
@@ -72,11 +72,11 @@ Create a client.
 
 **Body (JSON):**
 
-| Field               | Required | Description                          |
-| ------------------- | -------- | ------------------------------------ |
-| `name`              | yes      | Unique client name (case-insensitive) |
+| Field               | Required | Description                              |
+| ------------------- | -------- | ---------------------------------------- |
+| `name`              | yes      | Unique client name (case-insensitive)    |
 | `expiresAt`         | no       | ISO date string, or `null` for permanent |
-| `trafficLimitBytes` | no       | Lifetime cap in bytes, or omit/`null` |
+| `trafficLimitBytes` | no       | Lifetime cap in bytes, or omit/`null`    |
 
 **Success:** `200` with `{ "success": true, "clientId": 42 }`
 
@@ -90,28 +90,28 @@ curl -u admin:PASSWORD -X POST https://example.com:51821/api/client \
 
 ### Other client routes
 
-| Method | Path | Description |
-| ------ | ---- | ----------- |
-| GET | `/api/client/:id` | Client details |
-| POST | `/api/client/:id` | Update client |
-| DELETE | `/api/client/:id` | Delete client |
-| GET | `/api/client/:id/configuration` | Download `.conf` |
-| POST | `/api/client/:id/enable` | Enable client |
-| POST | `/api/client/:id/disable` | Disable client |
-| POST | `/api/client/:id/reset-traffic` | Reset traffic counters |
+| Method | Path                            | Description            |
+| ------ | ------------------------------- | ---------------------- |
+| GET    | `/api/client/:id`               | Client details         |
+| POST   | `/api/client/:id`               | Update client          |
+| DELETE | `/api/client/:id`               | Delete client          |
+| GET    | `/api/client/:id/configuration` | Download `.conf`       |
+| POST   | `/api/client/:id/enable`        | Enable client          |
+| POST   | `/api/client/:id/disable`       | Disable client         |
+| POST   | `/api/client/:id/reset-traffic` | Reset traffic counters |
 
 ## Admin
 
-| Method | Path | Description |
-| ------ | ---- | ----------- |
-| POST | `/api/admin/interface/cidr` | Change IPv4/IPv6 CIDR (see [Admin Panel](../guides/admin.md#ipv4--ipv6-cidr)) |
+| Method | Path                        | Description                                                                   |
+| ------ | --------------------------- | ----------------------------------------------------------------------------- |
+| POST   | `/api/admin/interface/cidr` | Change IPv4/IPv6 CIDR (see [Admin Panel](../guides/admin.md#ipv4--ipv6-cidr)) |
 
 **Change CIDR body:**
 
 ```json
 {
-  "ipv4Cidr": "10.8.0.0/20",
-  "ipv6Cidr": "fdcc:ad94:bacf:61a4::cafe:0/112"
+    "ipv4Cidr": "10.8.0.0/20",
+    "ipv6Cidr": "fdcc:ad94:bacf:61a4::cafe:0/112"
 }
 ```
 
@@ -119,8 +119,8 @@ curl -u admin:PASSWORD -X POST https://example.com:51821/api/client \
 
 Other routes follow the same file-based convention, for example:
 
-| File | Endpoint | Method |
-| ---- | -------- | ------ |
-| `src/server/api/client/index.get.ts` | `/api/client` | GET |
-| `src/server/api/client/index.post.ts` | `/api/client` | POST |
-| `src/server/api/setup/2.post.ts` | `/api/setup/2` | POST |
+| File                                  | Endpoint       | Method |
+| ------------------------------------- | -------------- | ------ |
+| `src/server/api/client/index.get.ts`  | `/api/client`  | GET    |
+| `src/server/api/client/index.post.ts` | `/api/client`  | POST   |
+| `src/server/api/setup/2.post.ts`      | `/api/setup/2` | POST   |
