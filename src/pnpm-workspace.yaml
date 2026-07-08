@@ -4,3 +4,5 @@ allowBuilds:
   esbuild: false
   unrs-resolver: false
   vue-demi: false
+patchedDependencies:
+  drizzle-kit@0.31.10: patches/drizzle-kit@0.31.10.patch
